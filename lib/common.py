@@ -31,29 +31,20 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 	def episode_completed(trainer: Engine):
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
-		mean_reward = np.mean(total_rewards[-GAMES:])
-		mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
-		passed = trainer.state.metrics.get('time_passed', 0)
+
 		if trainer.state.episode % 1000 == 0:
+			mean_reward = np.mean(total_rewards[-GAMES:])
+			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
+			passed = trainer.state.metrics.get('time_passed', 0)
 			print("Episode/Games %d/%d: reward=%.2f, steps=%d, "
 				"speed=%.1f f/s, elapsed=%s" % (
 				trainer.state.episode/GAMES, trainer.state.episode, 
-				mean_reward,
-				mean_n_steps,
+				mean_reward, mean_n_steps,
 				trainer.state.metrics.get('avg_fps', 0),
 				timedelta(seconds=int(passed))))
 
-	@engine.on(ptan_ignite.EpisodeEvents.BOUND_REWARD_REACHED)
-	def game_solved(trainer: Engine):
-		passed = trainer.state.metrics['time_passed']
-		print("Game solved in %s, after %d episodes "
-			"and %d iterations!" % (
-			timedelta(seconds=int(passed)),
-			trainer.state.episode, trainer.state.iteration))
-		trainer.should_terminate = True
-
 	now = datetime.now().isoformat(timespec='minutes')
-	logdir = f"runs/{now}-{params.run_name}-{run_name}"
+	logdir = f"runs/{now}-{run_name}"
 	tb = tb_logger.TensorboardLogger(log_dir=logdir)
 	run_avg = RunningAverage(output_transform=lambda v: v['loss'])
 	run_avg.attach(engine, "avg_loss")

@@ -15,24 +15,25 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 class Params():
-	env_name = "test"
-	stop_reward = None
-	stop_test_reward = 10000
-	run_name = "ppo"
-	lr = 1e-6
-	gamma = 0.99
-	ppo_trajectory = 1025
-	ppo_epoches = 4
-	ppo_eps =  0.1
-	batch_size = 16
-	gae_lambda = 0.95
-	entropy_beta = 1e-5
+	lr = 1e-7
+	entropy_beta = 1e-6
+	batch_size = 32
+	ppo_epoches = 8
 	sgamma = 0.1
+
 	w = 8
 	h = 8
 	dsize = 1
 	p = 0.9
-	useGPU = False
+	useGPU = True
+
+	env_name = "test"
+	gamma = 0.99
+	gae_lambda = 0.95
+	ppo_eps =  0.1
+	ppo_trajectory = 1025
+	stop_test_reward = 10000
+	stop_reward = None
 
 params = Params()
 
