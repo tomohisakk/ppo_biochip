@@ -20,8 +20,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 				exp_source, run_name: str,
 				extra_metrics: Iterable[str] = ()):
 	warnings.simplefilter("ignore", category=UserWarning)
-	handler = ptan_ignite.EndOfEpisodeHandler(
-		exp_source, bound_avg_reward=params.stop_reward)
+	handler = ptan_ignite.EndOfEpisodeHandler(exp_source, bound_avg_reward=params.stop_reward)
 	handler.attach(engine)
 	ptan_ignite.EpisodeFPSHandler().attach(engine)
 
@@ -35,7 +34,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 		mean_reward = np.mean(total_rewards[-GAMES:])
 		mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
 		passed = trainer.state.metrics.get('time_passed', 0)
-		if trainer.state.episode % 100 == 0:
+		if trainer.state.episode % 1000 == 0:
 			print("Episode/Games %d/%d: reward=%.2f, steps=%d, "
 				"speed=%.1f f/s, elapsed=%s" % (
 				trainer.state.episode/GAMES, trainer.state.episode, 

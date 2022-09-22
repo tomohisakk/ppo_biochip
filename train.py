@@ -19,22 +19,30 @@ class Params():
 	stop_reward = None
 	stop_test_reward = 10000
 	run_name = "ppo"
-	lr = 1e-5
+	lr = 1e-6
 	gamma = 0.99
 	ppo_trajectory = 1025
 	ppo_epoches = 4
-	ppo_eps =  0.2
+	ppo_eps =  0.1
 	batch_size = 16
 	gae_lambda = 0.95
-	entropy_beta = 0.1
+	entropy_beta = 1e-5
+	sgamma = 0.1
+	w = 8
+	h = 8
+	dsize = 1
+	p = 0.9
+	useGPU = False
 
 params = Params()
 
 if __name__ == "__main__":
-	env = MEDAEnv(w=8, h=8, dsize=1, p=0.9)
+	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, p=params.p)
 
-#	device = T.device('cuda:0' if T.cuda.is_available else 'cpu')
-	device = T.device('cpu')
+	if params.useGPU == True:
+		device = T.device('cuda:0' if T.cuda.is_available else 'cpu')
+	else:
+		device = T.device('cpu')
 	print("Device is ", device)
 
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
@@ -52,8 +60,9 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
-#	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
 
 	def process_batch(engine, batch):
 		start_ts = time.time()
@@ -80,6 +89,7 @@ if __name__ == "__main__":
 		loss_t.backward()
 		optimizer.step()
 
+
 		res.update({
 			"loss": loss_t.item(),
 			"loss_value": loss_value_t.item(),
@@ -97,7 +107,7 @@ if __name__ == "__main__":
 	common.setup_ignite(engine, params, exp_source, params.env_name, extra_metrics=(
 		'test_reward', 'avg_test_reward', 'test_steps'))
 
-	@engine.on(ptan_ignite.PeriodEvents.ITERS_10000_COMPLETED)
+	@engine.on(ptan_ignite.PeriodEvents.ITERS_100000_COMPLETED)
 	def test_network(engine):
 		net.actor.train(False)
 		obs = env.reset()
@@ -128,6 +138,8 @@ if __name__ == "__main__":
 			print("Reward boundary has crossed, stopping training. Contgrats!")
 			engine.should_terminate = True
 		net.actor.train(True)
+
+		scheduler.step()
 
 	def new_ppo_batch():
 		# In noisy networks we need to reset the noise
