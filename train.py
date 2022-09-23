@@ -1,3 +1,4 @@
+import os
 import ptan
 import ptan.ignite as ptan_ignite
 import gym
@@ -14,12 +15,14 @@ from lib import common, ppo
 
 from sub_envs.static import MEDAEnv
 
+GAMES = 30000
+EPOCHS = 10
+
 class Params():
 	lr = 1e-4
 	entropy_beta = 1e-3
 	batch_size = 32
 	ppo_epoches = 8
-#	sgamma = 0.1
 
 	w = 8
 	h = 8
@@ -49,13 +52,6 @@ if __name__ == "__main__":
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
 	print(net)
 
-	@T.no_grad()
-	def get_distill_reward(obs) -> float:
-		obs_t = T.FloatTensor([obs]).to(device)
-		res = (dist_ref(obs_t) - dist_trn(obs_t)).abs()[0][0].item()
-		return res
-
-
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True, preprocessor=ptan.agent.float32_preprocessor,
 								device=device)
 
@@ -63,7 +59,9 @@ if __name__ == "__main__":
 
 	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 #	optimizer = optim.Adam(net.parameters(), lr=params.lr)
-#	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
+
+	if not os.path.exists("saves"):
+		os.makedirs("saves")
 
 	def process_batch(engine, batch):
 		start_ts = time.time()
@@ -90,7 +88,6 @@ if __name__ == "__main__":
 		loss_t.backward()
 		optimizer.step()
 
-
 		res.update({
 			"loss": loss_t.item(),
 			"loss_value": loss_value_t.item(),
@@ -102,51 +99,12 @@ if __name__ == "__main__":
 
 		return res
 
-
 	engine = Engine(process_batch)
 
-	common.setup_ignite(engine, params, exp_source, params.env_name, extra_metrics=(
+	common.setup_ignite(engine, params, exp_source, params.env_name, net, extra_metrics=(
 		'test_reward', 'avg_test_reward', 'test_steps'))
-
-	@engine.on(ptan_ignite.PeriodEvents.ITERS_100000_COMPLETED)
-	def test_network(engine):
-		net.actor.train(False)
-		obs = env.reset()
-		reward = 0.0
-		steps = 0
-
-		while True:
-			acts, _ = agent([obs])
-			obs, r, is_done, _ = env.step(acts[0])
-			reward += r
-			steps += 1
-			if is_done:
-				break
-		test_reward_avg = getattr(engine.state, "test_reward_avg", None)
-		if test_reward_avg is None:
-			test_reward_avg = reward
-		else:
-			test_reward_avg = test_reward_avg * 0.95 + 0.05 * reward
-		engine.state.test_reward_avg = test_reward_avg
-		print("Test done: got %.3f reward after %d steps, avg reward %.3f" % (
-			reward, steps, test_reward_avg
-		))
-		engine.state.metrics['test_reward'] = reward
-		engine.state.metrics['avg_test_reward'] = test_reward_avg
-		engine.state.metrics['test_steps'] = steps
-
-		if test_reward_avg > params.stop_test_reward:
-			print("Reward boundary has crossed, stopping training. Contgrats!")
-			engine.should_terminate = True
-#		net.actor.train(True)
-
-#		scheduler.step()
-
-	def new_ppo_batch():
-		# In noisy networks we need to reset the noise
-		pass
 
 	engine.run(ppo.batch_generator(exp_source, net, params.ppo_trajectory,
 									params.ppo_epoches, params.batch_size,
 									params.gamma, params.gae_lambda, device=device,
-									trim_trajectory=False, new_batch_callable=new_ppo_batch))
+									trim_trajectory=False), epoch_length=GAMES*EPOCHS)

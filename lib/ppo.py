@@ -11,7 +11,7 @@ def batch_generator(exp_source: ptan.experience.ExperienceSource,
 					trajectory_size: int, ppo_epoches: int,
 					batch_size: int, gamma: float, gae_lambda: float,
 					device: Union[torch.device, str] = "cpu", trim_trajectory: bool = True,
-					new_batch_callable: Optional[Callable] = None):
+					):
 	trj_states = []
 	trj_actions = []
 	trj_rewards = []
@@ -29,9 +29,6 @@ def batch_generator(exp_source: ptan.experience.ExperienceSource,
 		# ensure that we have at least one full episode in the trajectory
 		if last_done_index is None or last_done_index == len(trj_states)-1:
 			continue
-
-		if new_batch_callable is not None:
-			new_batch_callable()
 
 		# trim the trajectory till the last done plus one step (which will be discarded).
 		# This increases convergence speed and stability
@@ -130,3 +127,11 @@ class AtariBasePPO(nn.Module):
 		fx = x.float() / 2
 		conv_out = self.conv(fx).view(fx.size()[0], -1)
 		return self.actor(conv_out), self.critic(conv_out)
+
+	def save_checkpoint(self, env_name):
+		print("... saveing checkpoint ...")
+		torch.save(self.state_dict(), "saves/" + env_name)
+"""
+	def load_checkpoint(self, checkpoint_path):
+		self.load_state_dict(torch.load(checkpoint_path))
+"""

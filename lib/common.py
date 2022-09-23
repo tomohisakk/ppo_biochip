@@ -13,11 +13,11 @@ import ptan.ignite as ptan_ignite
 from ignite.engine import Engine
 from ignite.metrics import RunningAverage
 from ignite.contrib.handlers import tensorboard_logger as tb_logger
-GAMES = 20000
-EPOCHES = 300
+
+GAMES = 30000
 
 def setup_ignite(engine: Engine, params: SimpleNamespace,
-				exp_source, run_name: str,
+				exp_source, run_name: str, net,
 				extra_metrics: Iterable[str] = ()):
 	warnings.simplefilter("ignore", category=UserWarning)
 	handler = ptan_ignite.EndOfEpisodeHandler(exp_source, bound_avg_reward=params.stop_reward)
@@ -32,6 +32,9 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
+		if trainer.state.episode % 10000 == 0:
+			net.save_checkpoint(params.env_name)
+
 		if trainer.state.episode % 1000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
 			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
@@ -44,7 +47,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 				timedelta(seconds=int(passed))))
 
 	now = datetime.now().isoformat(timespec='minutes')
-	logdir = f"runs/{now}-{run_name}"
+	logdir = f"runs/{now}-{params.env_name}"
 	tb = tb_logger.TensorboardLogger(log_dir=logdir)
 	run_avg = RunningAverage(output_transform=lambda v: v['loss'])
 	run_avg.attach(engine, "avg_loss")
