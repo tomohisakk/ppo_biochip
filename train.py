@@ -15,16 +15,16 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 class Params():
-	lr = 1e-7
-	entropy_beta = 1e-6
+	lr = 1e-4
+	entropy_beta = 1e-3
 	batch_size = 32
 	ppo_epoches = 8
-	sgamma = 0.1
+#	sgamma = 0.1
 
 	w = 8
 	h = 8
 	dsize = 1
-	p = 0.9
+	p = 1.0
 	useGPU = True
 
 	env_name = "test"
@@ -61,9 +61,9 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
-	optimizer = optim.Adam(net.parameters(), lr=params.lr)
-	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
+	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+#	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+#	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
 
 	def process_batch(engine, batch):
 		start_ts = time.time()
@@ -138,9 +138,9 @@ if __name__ == "__main__":
 		if test_reward_avg > params.stop_test_reward:
 			print("Reward boundary has crossed, stopping training. Contgrats!")
 			engine.should_terminate = True
-		net.actor.train(True)
+#		net.actor.train(True)
 
-		scheduler.step()
+#		scheduler.step()
 
 	def new_ppo_batch():
 		# In noisy networks we need to reset the noise
