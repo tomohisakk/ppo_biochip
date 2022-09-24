@@ -131,7 +131,6 @@ class AtariBasePPO(nn.Module):
 	def save_checkpoint(self, env_name):
 		print("... saveing checkpoint ...")
 		torch.save(self.state_dict(), "saves/" + env_name)
-"""
-	def load_checkpoint(self, checkpoint_path):
-		self.load_state_dict(torch.load(checkpoint_path))
-"""
+
+	def load_checkpoint(self, env_name):
+		self.load_state_dict(torch.load("saves/" + env_name))

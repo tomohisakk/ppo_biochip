@@ -16,19 +16,19 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 GAMES = 30000
-EPOCHS = 10
+EPOCHS = 100
 
 class Params():
-	lr = 1e-4
-	entropy_beta = 1e-3
-	batch_size = 32
+	lr = 1e-7
+	entropy_beta = 1e-6
+	batch_size = 16
 	ppo_epoches = 8
 
 	w = 8
 	h = 8
 	dsize = 1
-	p = 1.0
-	useGPU = True
+	p = 0.9
+	useGPU = False
 
 	env_name = "test"
 	gamma = 0.99
@@ -57,8 +57,8 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
-#	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+	optimizer = optim.Adam(net.parameters(), lr=params.lr)
 
 	if not os.path.exists("saves"):
 		os.makedirs("saves")
