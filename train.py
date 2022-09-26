@@ -15,14 +15,12 @@ from lib import common, ppo
 
 from sub_envs.static import MEDAEnv
 
-GAMES = 30000
-EPOCHS = 100
-
 class Params():
-	lr = 1e-7
-	entropy_beta = 1e-6
-	batch_size = 16
+	lr = 1e-4
+	entropy_beta = 1e-3
+	batch_size = 64
 	ppo_epoches = 8
+	sgamma = 0.9
 
 	w = 8
 	h = 8
@@ -52,13 +50,16 @@ if __name__ == "__main__":
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
 	print(net)
 
-	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True, preprocessor=ptan.agent.float32_preprocessor,
-								device=device)
+	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
+								   preprocessor=ptan.agent.float32_preprocessor,
+								   device=device)
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
 #	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+
+	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
 
 	if not os.path.exists("saves"):
 		os.makedirs("saves")
@@ -84,7 +85,7 @@ if __name__ == "__main__":
 		clipped_surr_t = adv_t * T.clamp(ratio_t, 1.0 - params.ppo_eps, 1.0 + params.ppo_eps)
 		loss_policy_t = -T.min(surr_obj_t, clipped_surr_t).mean()
 
-		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
+		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + 0.5*loss_value_t
 		loss_t.backward()
 		optimizer.step()
 
@@ -101,10 +102,9 @@ if __name__ == "__main__":
 
 	engine = Engine(process_batch)
 
-	common.setup_ignite(engine, params, exp_source, params.env_name, net, extra_metrics=(
+	common.setup_ignite(engine, params, exp_source, params.env_name, net, optimizer, scheduler ,extra_metrics=(
 		'test_reward', 'avg_test_reward', 'test_steps'))
 
 	engine.run(ppo.batch_generator(exp_source, net, params.ppo_trajectory,
 									params.ppo_epoches, params.batch_size,
-									params.gamma, params.gae_lambda, device=device,
-									trim_trajectory=False), epoch_length=GAMES*EPOCHS)
+									params.gamma, params.gae_lambda, device=device))

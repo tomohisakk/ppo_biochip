@@ -52,14 +52,13 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "LR=0.0001_EB=0.001"
-	TOTAL_GAMES = 1000
+	ENV_NAME = "test"
+	TOTAL_GAMES = 100
 
 	W = 8
 	H = 8
 	DSIZE = 1
 	P = 0.9
-	ENV_NAME = "test"
 
 	############################
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, p=P, test_flag=True)
@@ -110,8 +109,10 @@ if __name__ == "__main__":
 #		print("shortest:",len(path))
 #		print("stepnum:",n_steps)
 
-		if len(path) == n_steps:
+		if len(path)-1 == n_steps:
 			n_critical += 1
+		else:
+			print(n_steps)
 
 #		writer.add_scalar("Step_num", n_steps, n_games)
 		n_games += 1

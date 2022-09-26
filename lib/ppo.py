@@ -6,12 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union, Callable, Optional
 
-def batch_generator(exp_source: ptan.experience.ExperienceSource,
-					net: nn.Module,
-					trajectory_size: int, ppo_epoches: int,
-					batch_size: int, gamma: float, gae_lambda: float,
-					device: Union[torch.device, str] = "cpu", trim_trajectory: bool = True,
-					):
+def batch_generator(exp_source, net, trajectory_size, ppo_epoches,
+					batch_size, gamma, gae_lambda, device):
 	trj_states = []
 	trj_actions = []
 	trj_rewards = []
@@ -55,7 +51,7 @@ def batch_generator(exp_source: ptan.experience.ExperienceSource,
 		indices = np.arange(0, trj_len-1)
 
 		# generate needed amount of batches
-		for _ in range(ppo_epoches):
+		for i in range(ppo_epoches):
 			np.random.shuffle(indices)
 			for batch_indices in np.split(indices, trj_len // batch_size):
 				yield (
@@ -99,24 +95,24 @@ class AtariBasePPO(nn.Module):
 		super(AtariBasePPO, self).__init__()
 
 		self.conv = nn.Sequential(
-			nn.Conv2d(input_shape[0], 64, kernel_size=1, stride=3),
+			nn.Conv2d(input_shape[0], 64, kernel_size=1, stride=1),
 			nn.ReLU(),
-			nn.Conv2d(64, 128, kernel_size=1, stride=3),
+			nn.Conv2d(64, 128, kernel_size=2, stride=1),
 			nn.ReLU(),
-			nn.Conv2d(128, 128, kernel_size=1, stride=3),
+			nn.Conv2d(128, 128, kernel_size=2, stride=1),
 			nn.ReLU()
 		)
 
 		conv_out_size = self._get_conv_out(input_shape)
 		self.actor = nn.Sequential(
-			nn.Linear(conv_out_size, 32),
+			nn.Linear(conv_out_size, 128),
 			nn.ReLU(),
-			nn.Linear(32, n_actions)
+			nn.Linear(128, n_actions)
 		)
 		self.critic = nn.Sequential(
-			nn.Linear(conv_out_size, 32),
+			nn.Linear(conv_out_size, 128),
 			nn.ReLU(),
-			nn.Linear(32, 1)
+			nn.Linear(128, 1)
 		)
 
 	def _get_conv_out(self, shape):
