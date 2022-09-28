@@ -95,9 +95,9 @@ class AtariBasePPO(nn.Module):
 		super(AtariBasePPO, self).__init__()
 
 		self.conv = nn.Sequential(
-			nn.Conv2d(input_shape[0], 64, kernel_size=1, stride=1),
+			nn.Conv2d(input_shape[0], 64, kernel_size=3, stride=1),
 			nn.ReLU(),
-			nn.Conv2d(64, 128, kernel_size=2, stride=1),
+			nn.Conv2d(64, 128, kernel_size=3, stride=1),
 			nn.ReLU(),
 			nn.Conv2d(128, 128, kernel_size=2, stride=1),
 			nn.ReLU()

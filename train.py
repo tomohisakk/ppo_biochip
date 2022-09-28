@@ -26,7 +26,7 @@ class Params():
 	h = 8
 	dsize = 1
 	p = 0.9
-	useGPU = False
+	useGPU = True
 
 	env_name = "test"
 	gamma = 0.99

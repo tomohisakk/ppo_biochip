@@ -27,7 +27,7 @@ class MEDAEnv(gym.Env):
 		self.p = p
 		self.actions = Actions
 		self.action_space = len(self.actions)
-		self.observation_space = (w, h, 3)
+		self.observation_space = (3, w, h)
 		self.n_steps = 0
 		self.max_step = 2*(self.w+self.h)
 
@@ -175,43 +175,17 @@ class MEDAEnv(gym.Env):
 					break
 
 	def _get_obs(self):
-		obs = np.zeros(shape = (self.w, self.h, 3))
+		obs = np.zeros(shape = (3, self.w, self.h))
 		for i in range(self.w):
 			for j in range(self.h):
 				if self.map[j][i] == self.map_symbols.State:
-					obs[i][j][0] = 1
+					obs[0][i][j] = 1
 				elif self.map[j][i] == self.map_symbols.Goal:
-					obs[i][j][1] = 1
+					obs[1][i][j] = 1
 				elif self.map[j][i] == self.map_symbols.Static_module:
-					obs[i][j][2] = 1
+					obs[2][i][j] = 1
 #		print(obs)
 		return obs
 
 	def close(self):
 		pass
-
-"""
-if __name__ == '__main__':
-	env = MEDAEnv(w=6, h=8, dsize=1, p=0.9)
-	done = False
-	while not done:
-		action = np.random.randint(0,4)
-		print(action)
-		obs, reward, done, _ = env.step(action)
-		#env.reset(n_modules=5)
-		#print("action and obs")
-#		print(obs)
-		print(reward)
-	print("--------------SECOND RAUND----------")
-	env.reset()
-	done = 0
-	while not done:
-		action = np.random.randint(0,4)
-		print(action)
-		obs, reward, done, _ = env.step(action)
-		#env.reset(n_modules=5)
-		#print("action and obs")
-#		print(action)
-#		print(obs)
-#		print(reward)
-"""
