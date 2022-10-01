@@ -53,7 +53,7 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 if __name__ == "__main__":
 	###### Set params ##########
 	ENV_NAME = "test"
-	TOTAL_GAMES = 100
+	TOTAL_GAMES = 10000
 
 	W = 8
 	H = 8

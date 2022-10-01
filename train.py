@@ -17,7 +17,7 @@ from sub_envs.static import MEDAEnv
 
 class Params():
 	lr = 1e-4
-	entropy_beta = 1e-3
+	entropy_beta = 0.01
 	batch_size = 64
 	ppo_epoches = 8
 	sgamma = 0.9
@@ -26,12 +26,12 @@ class Params():
 	h = 8
 	dsize = 1
 	p = 0.9
-	useGPU = True
+	useGPU = False
 
 	env_name = "test"
 	gamma = 0.99
 	gae_lambda = 0.95
-	ppo_eps =  0.1
+	ppo_eps =  0.2
 	ppo_trajectory = 1025
 	stop_test_reward = 10000
 	stop_reward = None

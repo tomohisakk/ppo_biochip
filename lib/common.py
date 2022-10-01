@@ -15,7 +15,7 @@ from ignite.metrics import RunningAverage
 from ignite.contrib.handlers import tensorboard_logger as tb_logger
 
 GAMES = 30000
-EPOCHS = 100
+EPOCHS = 200
 
 def setup_ignite(engine: Engine, params: SimpleNamespace,
 				exp_source, run_name: str, net, optimizer, scheduler,
@@ -33,11 +33,13 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if trainer.state.episode % GAMES == 0:
-			net.save_checkpoint(params.env_name)
+		if (trainer.state.episode%GAMES == 0)and(optimizer.param_groups[0]['lr'] > 1e-6):
 			scheduler.step()
-			print("=== Optimizer Info ===")
-			print(optimizer)
+			print("=== Current LR ===")
+			print(optimizer.param_groups[0]['lr'])
+
+		if trainer.state.episode % (2*GAMES) == 0:
+			net.save_checkpoint(params.env_name)
 
 		if trainer.state.episode % 1000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
