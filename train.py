@@ -16,7 +16,7 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 class Params():
-	lr = 1e-5
+	lr = 1e-6
 	entropy_beta = 0.01
 	batch_size = 16
 	ppo_epoches = 8
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
-	net.load_checkpoint("saves/default")
+	net.load_checkpoint("default")
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
