@@ -16,9 +16,9 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 class Params():
-	lr = 1e-4
+	lr = 1e-5
 	entropy_beta = 0.01
-	batch_size = 64
+	batch_size = 16
 	ppo_epoches = 8
 	sgamma = 0.9
 
@@ -26,7 +26,7 @@ class Params():
 	h = 8
 	dsize = 1
 	p = 0.9
-	useGPU = False
+	useGPU = True
 
 	env_name = "test"
 	gamma = 0.99
@@ -48,6 +48,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
+	net.load_checkpoint("saves/default")
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,

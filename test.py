@@ -52,13 +52,13 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "test"
+	ENV_NAME = "default"
 	TOTAL_GAMES = 10000
 
 	W = 8
 	H = 8
 	DSIZE = 1
-	P = 0.9
+	P = 1.0
 
 	############################
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, p=P, test_flag=True)
@@ -96,8 +96,11 @@ if __name__ == "__main__":
 		path = _compute_shortest_route(W, H, DSIZE, map_symbols, map, (0,0))
 
 		while not done:
-			acts, _ = agent([observation])
-			observation, reward, done, message = env.step(acts[0])
+			observation = T.tensor([observation], dtype=T.float)
+			acts, _ = net(observation)
+#			print(acts)
+			action = T.argmax(acts).item()
+			observation, reward, done, message = env.step(action)
 			score += reward
 
 			if message == None:
@@ -112,6 +115,7 @@ if __name__ == "__main__":
 		if len(path)-1 == n_steps:
 			n_critical += 1
 		else:
+			print(observation)
 			print(n_steps)
 
 #		writer.add_scalar("Step_num", n_steps, n_games)
