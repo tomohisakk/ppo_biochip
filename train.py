@@ -16,17 +16,17 @@ from lib import common, ppo
 from sub_envs.static import MEDAEnv
 
 class Params():
-	lr = 1e-6
-	entropy_beta = 0.01
-	batch_size = 16
-	ppo_epoches = 8
-	sgamma = 0.9
+	lr = 1e-3
+	entropy_beta = 1e-2
+	batch_size = 128
+	ppo_epoches = 10
+	sgamma = 0.7
 
 	w = 8
 	h = 8
 	dsize = 1
-	p = 0.9
-	useGPU = True
+	n_modules = 2
+	useGPU = False
 
 	env_name = "test"
 	gamma = 0.99
@@ -39,7 +39,7 @@ class Params():
 params = Params()
 
 if __name__ == "__main__":
-	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, p=params.p)
+	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, n_modules=params.n_modules)
 
 	if params.useGPU == True:
 		device = T.device('cuda:0' if T.cuda.is_available else 'cpu')
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
-	net.load_checkpoint("default")
+#	net.load_checkpoint("default")
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
 #	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
-	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
 

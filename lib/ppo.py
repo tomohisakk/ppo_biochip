@@ -95,24 +95,24 @@ class AtariBasePPO(nn.Module):
 		super(AtariBasePPO, self).__init__()
 
 		self.conv = nn.Sequential(
-			nn.Conv2d(input_shape[0], 64, kernel_size=3, stride=1),
+			nn.Conv2d(input_shape[0], 32, kernel_size=2, stride=2),
 			nn.ReLU(),
-			nn.Conv2d(64, 128, kernel_size=3, stride=1),
+			nn.Conv2d(32, 64, kernel_size=2, stride=1),
 			nn.ReLU(),
-			nn.Conv2d(128, 128, kernel_size=2, stride=1),
+			nn.Conv2d(64, 64, kernel_size=2, stride=1),
 			nn.ReLU()
 		)
 
 		conv_out_size = self._get_conv_out(input_shape)
 		self.actor = nn.Sequential(
-			nn.Linear(conv_out_size, 128),
+			nn.Linear(conv_out_size, 32),
 			nn.ReLU(),
-			nn.Linear(128, n_actions)
+			nn.Linear(32, n_actions)
 		)
 		self.critic = nn.Sequential(
-			nn.Linear(conv_out_size, 128),
+			nn.Linear(conv_out_size, 32),
 			nn.ReLU(),
-			nn.Linear(128, 1)
+			nn.Linear(32, 1)
 		)
 
 	def _get_conv_out(self, shape):

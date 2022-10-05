@@ -17,14 +17,13 @@ class Actions(IntEnum):
 	W = 3
 
 class MEDAEnv(gym.Env):
-	def __init__(self, w=8, h=8, dsize=2, p=0.9, test_flag=False):
+	def __init__(self, w=8, h=8, dsize=2, n_modules=2, test_flag=False):
 		super(MEDAEnv, self).__init__()
-		assert w > 0 and h > 0
-		assert 0 <= p <= 1.0
+		assert w>0 and h>0 and dsize>0
+		assert 0<=n_modules
 		self.w = w
 		self.h = h
 		self.dsize = dsize
-		self.p = p
 		self.actions = Actions
 		self.action_space = len(self.actions)
 		self.observation_space = (3, w, h)
@@ -35,7 +34,7 @@ class MEDAEnv(gym.Env):
 		self.goal = (w-1, h-1)
 
 		self.map_symbols = Symbols()
-		self.mapclass = MakeMap(w=self.w,h=self.h,dsize=self.dsize,p=self.p)
+		self.mapclass = MakeMap(w=self.w,h=self.h,dsize=self.dsize,n_modules=n_modules)
 		self.map = self.mapclass.gen_random_map()
 
 		self.test_flag = test_flag

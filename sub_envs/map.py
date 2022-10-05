@@ -15,20 +15,31 @@ class Symbols():
 	Health = "."
 
 class MakeMap():
-	def __init__(self, w, h, dsize, p):
+	def __init__(self, w, h, dsize, n_modules):
 		super(MakeMap, self).__init__()
 		assert w>0 and h>0 and dsize>0
-		assert 0<=p<=1.0
+		assert 0<=n_modules
 		self.w = w
 		self.h = h
 		self.dsize = dsize
-		self.p = p
+		self.n_modules = n_modules
 
 		self.symbols = Symbols()
 		self.map = self._make_map()
 
 	def _make_map(self):
-		map = np.random.choice([".", "#", '*'], (self.h, self.w), p=[self.p, (1-self.p)/2, (1-self.p)/2])
+		map = np.random.choice([".", "#", '*'], (self.h, self.w), p=[1, 0, 0])
+
+		for _ in range(self.n_modules):
+			i = random.randint(0, self.w-1)
+			j = random.randint(0, self.h-1)
+			map[j][i] = '#'
+		
+		for _ in range(self.n_modules):
+			i = random.randint(0, self.w-1)
+			j = random.randint(0, self.h-1)
+			map[j][i] = '*'
+
 		i = 0
 
 		# Set droplet
@@ -57,6 +68,8 @@ class MakeMap():
 				break
 
 		map[-1][-1] = "G"
+
+#		print(map)
 
 		self.map = map
 #		return map

@@ -52,16 +52,16 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "default"
-	TOTAL_GAMES = 10000
+	ENV_NAME = "test"
+	TOTAL_GAMES = 1000
 
 	W = 8
 	H = 8
 	DSIZE = 1
-	P = 1.0
+	N_MODULES = 2
 
 	############################
-	env = MEDAEnv(w=W, h=H, dsize=DSIZE, p=P, test_flag=True)
+	env = MEDAEnv(w=W, h=H, dsize=DSIZE, n_modules=N_MODULES, test_flag=True)
 
 	device = T.device('cpu')
 
@@ -71,16 +71,16 @@ if __name__ == "__main__":
 	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(ENV_NAME)
 
-	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True, 
-								   preprocessor=ptan.agent.float32_preprocessor,
-								   device=device)
+#	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True, 
+#								   preprocessor=ptan.agent.float32_preprocessor,
+#								   device=device)
 
 	n_games = 0
 
 	n_critical = 0
 
 	map_symbols = Symbols()
-	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,p=P)
+	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,n_modules=N_MODULES)
 
 	while n_games != TOTAL_GAMES:
 
@@ -115,7 +115,8 @@ if __name__ == "__main__":
 		if len(path)-1 == n_steps:
 			n_critical += 1
 		else:
-			print(observation)
+			print()
+			print(observation[2])
 			print(n_steps)
 
 #		writer.add_scalar("Step_num", n_steps, n_games)
