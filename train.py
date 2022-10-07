@@ -1,38 +1,34 @@
 import os
 import ptan
-import ptan.ignite as ptan_ignite
-import gym
-import argparse
-import random
 import time
 import torch as T
 import torch.optim as optim
 import torch.nn.functional as F
-
 from ignite.engine import Engine
-from types import SimpleNamespace
-from lib import common, ppo
 
 from sub_envs.static import MEDAEnv
+#from sub_envs.dynamic import MEDAEnv
+from lib import common, ppo
 
 class Params():
 	lr = 1e-3
-	entropy_beta = 1e-2
-	batch_size = 128
+	entropy_beta = 0.3
+	batch_size = 64
 	ppo_epoches = 10
 	sgamma = 0.7
 
 	w = 8
 	h = 8
 	dsize = 1
-	n_modules = 2
-	useGPU = False
+	n_modules = 3
+	useGPU = True
 
-	env_name = "test"
+
+	env_name = "s8813"
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2
-	ppo_trajectory = 1025
+	ppo_trajectory = 2049
 	stop_test_reward = 10000
 	stop_reward = None
 
@@ -47,7 +43,7 @@ if __name__ == "__main__":
 		device = T.device('cpu')
 	print("Device is ", device)
 
-	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
+	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 #	net.load_checkpoint("default")
 	print(net)
 
@@ -57,7 +53,6 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
@@ -86,7 +81,7 @@ if __name__ == "__main__":
 		clipped_surr_t = adv_t * T.clamp(ratio_t, 1.0 - params.ppo_eps, 1.0 + params.ppo_eps)
 		loss_policy_t = -T.min(surr_obj_t, clipped_surr_t).mean()
 
-		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + 0.5*loss_value_t
+		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
 		loss_t.backward()
 		optimizer.step()
 

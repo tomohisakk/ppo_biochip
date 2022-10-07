@@ -1,16 +1,14 @@
+import pickle
 import torch as T
-import ptan
-from sub_envs.static import MEDAEnv
-#from envs.dynamic import MEDAEnv
 import numpy as np
 import collections
 
+from sub_envs.static import MEDAEnv
+#from sub_envs.dynamic import MEDAEnv
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
-
 from lib import common, ppo
 
-#from tensorboardX import SummaryWriter
 
 def _is_touching(dstate, obj, map, dsize):
 		i = 0
@@ -52,28 +50,32 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "test"
-	TOTAL_GAMES = 1000
+	ENV_NAME = "s8813"
+	TOTAL_GAMES = 10000
 
 	W = 8
 	H = 8
 	DSIZE = 1
-	N_MODULES = 2
+	N_MODULES = 3
 
+	IS_IMPORT = False
+	lmaps = []
 	############################
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, n_modules=N_MODULES, test_flag=True)
 
+	if IS_IMPORT:
+		dir_name = "testmaps/size:%sx%s/dsize:%s/modlue:%s"%(W , H, DSIZE, N_MODULES)
+		file_name = "%s/map.pkl"%(dir_name)
+
+		save_file = open(file_name, "rb")
+		maps = pickle.load(save_file)
+
 	device = T.device('cpu')
 
-#	writer = SummaryWriter(comment = "Result of " + ENV_NAME)
 	CHECKPOINT_PATH = "saves/" + ENV_NAME
 
-	net = ppo.AtariBasePPO(env.observation_space, env.action_space).to(device)
+	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(ENV_NAME)
-
-#	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True, 
-#								   preprocessor=ptan.agent.float32_preprocessor,
-#								   device=device)
 
 	n_games = 0
 
@@ -82,9 +84,12 @@ if __name__ == "__main__":
 	map_symbols = Symbols()
 	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,n_modules=N_MODULES)
 
-	while n_games != TOTAL_GAMES:
-
-		map = mapclass.gen_random_map()
+	for n_games in range(TOTAL_GAMES):
+		if IS_IMPORT:
+			map = maps[n_games]
+		else:
+			map = mapclass.gen_random_map()
+#		print(map)
 
 		net.actor.train(False)
 		observation = env.reset(test_map=map)
@@ -114,15 +119,16 @@ if __name__ == "__main__":
 
 		if len(path)-1 == n_steps:
 			n_critical += 1
-		else:
-			print()
-			print(observation[2])
-			print(n_steps)
+#		else:
+#			print()
+#			print(observation[2])
+#			print(n_steps)
 
 #		writer.add_scalar("Step_num", n_steps, n_games)
-		n_games += 1
 
-	print("Finish " + str(TOTAL_GAMES) + " tests")
-	print("Critical path: ", n_critical)
-	print("Avg of critical path: ", n_critical/TOTAL_GAMES)
+print("Finish " + str(TOTAL_GAMES) + " tests")
+print("Critical path: ", n_critical)
+print("Avg of critical path: ", n_critical/TOTAL_GAMES)
 
+if IS_IMPORT:
+	save_file.close()

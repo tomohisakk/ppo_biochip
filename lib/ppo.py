@@ -22,12 +22,8 @@ def batch_generator(exp_source, net, trajectory_size, ppo_epoches,
 			last_done_index = len(trj_states)-1
 		if len(trj_states) < trajectory_size:
 			continue
-		# ensure that we have at least one full episode in the trajectory
 		if last_done_index is None or last_done_index == len(trj_states)-1:
 			continue
-
-		# trim the trajectory till the last done plus one step (which will be discarded).
-		# This increases convergence speed and stability
 
 		trj_states_t = torch.FloatTensor(trj_states).to(device)
 		trj_actions_t = torch.tensor(trj_actions).to(device)
@@ -44,13 +40,11 @@ def batch_generator(exp_source, net, trajectory_size, ppo_epoches,
 		adv_t = (adv_t - torch.mean(adv_t)) / torch.std(adv_t)
 		old_logprob_t = old_logprob_t.detach()
 
-		# make our trajectory splittable on even batch chunks
 		trj_len = len(trj_states) - 1
 		trj_len -= trj_len % batch_size
 		trj_len += 1
 		indices = np.arange(0, trj_len-1)
 
-		# generate needed amount of batches
 		for i in range(ppo_epoches):
 			np.random.shuffle(indices)
 			for batch_indices in np.split(indices, trj_len // batch_size):
@@ -87,12 +81,9 @@ def calc_adv_ref(values, dones, rewards, gamma, gae_lambda):
 	return torch.FloatTensor(adv), torch.FloatTensor(ref)
 
 
-class AtariBasePPO(nn.Module):
-	"""
-	Dueling net
-	"""
+class PPO(nn.Module):
 	def __init__(self, input_shape, n_actions):
-		super(AtariBasePPO, self).__init__()
+		super(PPO, self).__init__()
 
 		self.conv = nn.Sequential(
 			nn.Conv2d(input_shape[0], 32, kernel_size=2, stride=2),

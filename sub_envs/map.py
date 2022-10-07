@@ -1,11 +1,7 @@
-import copy
 import queue
 import random
-import numpy as np
-from enum import IntEnum
-import math
 import collections
-import gym
+import numpy as np
 
 class Symbols():
 	State = "D"
@@ -70,10 +66,8 @@ class MakeMap():
 		map[-1][-1] = "G"
 
 #		print(map)
-
 		self.map = map
 #		return map
-
 
 	def _is_touching(self, dstate, obj):
 		i = 0
@@ -117,6 +111,7 @@ class MakeMap():
 		while self._is_map_good((0,0)) == False:
 			self._make_map()
 		return self.map
+
 """
 if __name__ == '__main__':
 	mapclass = MakeMap(w=10,h=10,dsize=3,p=0.7)

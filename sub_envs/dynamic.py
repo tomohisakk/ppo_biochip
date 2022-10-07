@@ -1,14 +1,11 @@
-import copy
-import queue
+import gym
+import math
 import random
 import numpy as np
 from enum import IntEnum
-import math
-import collections
-import gym
 
-from map import MakeMap
-from map import Symbols
+from sub_envs.map import MakeMap
+from sub_envs.map import Symbols
 
 class Actions(IntEnum):
 	N = 0
@@ -71,17 +68,15 @@ class MEDAEnv(gym.Env):
 			dist = self._get_dist(self.state, self.goal)
 
 		if dist <= (self.dsize-1)*math.sqrt(2):
-			reward = 1.0
+			reward = 0
 			done = True
 		elif self.n_steps == self.max_step:
-			reward = -0.8
+			reward = -1
 			done = True
 		elif dist < _dist:
-			reward = 0.5
-		elif dist == _dist:
-			reward = -0.5
+			reward = -0.1
 		else:
-			reward = -0.8
+			reward = -0.3
 
 		
 #		if self.test_flag == True:

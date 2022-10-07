@@ -1,25 +1,21 @@
-import gym
-import collections
-import numpy as np
-import warnings
-import torch
-import torch.nn as nn
-from datetime import timedelta, datetime
-from types import SimpleNamespace
-from typing import Iterable, Tuple, List
-
 import ptan
-import ptan.ignite as ptan_ignite
+import warnings
+import torch as T
+import numpy as np
+import torch.nn as nn
+from typing import Iterable
 from ignite.engine import Engine
+import ptan.ignite as ptan_ignite
+from types import SimpleNamespace
+from datetime import timedelta, datetime
 from ignite.metrics import RunningAverage
 from ignite.contrib.handlers import tensorboard_logger as tb_logger
 
-GAMES = 20000
-EPOCHS = 100
+GAMES = 30000
+EPOCHS = 50
 
-def setup_ignite(engine: Engine, params: SimpleNamespace,
-				exp_source, run_name: str, net, optimizer, scheduler,
-				extra_metrics: Iterable[str] = ()):
+def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
+				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
 	warnings.simplefilter("ignore", category=UserWarning)
 	handler = ptan_ignite.EndOfEpisodeHandler(exp_source, bound_avg_reward=params.stop_reward)
 	handler.attach(engine)
@@ -33,15 +29,9 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if (trainer.state.episode%GAMES == 0)and(optimizer.param_groups[0]['lr'] > 1e-8):
+		if (trainer.state.episode%GAMES == 0)and(optimizer.param_groups[0]['lr'] > 1e-7):
 			scheduler.step()
-			print("=== Current LR ===")
-			print(optimizer.param_groups[0]['lr'])
-
-#		if (trainer.state.episode%GAMES == 0)and(optimizer.param_groups[0]['eps'] > 1e-8):
-#			optimizer.param_groups[0]['eps'] *= 0.7
-#			print("=== Current EPS ===")
-#			print(optimizer.param_groups[0]['eps'])
+			print("LR: ", optimizer.param_groups[0]['lr'])
 
 		if trainer.state.episode % GAMES == 0:
 			net.save_checkpoint(params.env_name)
@@ -61,7 +51,6 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 			engine.terminate()
 			print("=== Learning end ===")
 
-
 	now = datetime.now().isoformat(timespec='minutes')
 	logdir = f"runs/{now}-{params.env_name}"
 	tb = tb_logger.TensorboardLogger(log_dir=logdir)
@@ -74,7 +63,6 @@ def setup_ignite(engine: Engine, params: SimpleNamespace,
 	event = ptan_ignite.EpisodeEvents.EPISODE_COMPLETED
 	tb.attach(engine, log_handler=handler, event_name=event)
 
-	# write to tensorboard every 100 iterations
 	ptan_ignite.PeriodicEvents().attach(engine)
 	metrics = ['avg_loss', 'avg_fps']
 	metrics.extend(extra_metrics)

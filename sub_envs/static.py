@@ -1,11 +1,8 @@
-import copy
-import queue
+import gym
+import math
 import random
 import numpy as np
 from enum import IntEnum
-import math
-import collections
-import gym
 
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
@@ -145,7 +142,6 @@ class MEDAEnv(gym.Env):
 				i += 1
 				if i == self.dsize:
 					break
-
 
 	def _get_obs(self):
 		obs = np.zeros(shape = (3, self.w, self.h))
