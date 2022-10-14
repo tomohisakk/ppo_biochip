@@ -12,7 +12,7 @@ from ignite.metrics import RunningAverage
 from ignite.contrib.handlers import tensorboard_logger as tb_logger
 
 GAMES = 30000
-EPOCHS = 50
+EPOCHS = 100
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):

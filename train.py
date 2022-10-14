@@ -11,17 +11,17 @@ from sub_envs.static import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 1e-3
+	lr = 1e-4
 	entropy_beta = 0.3
 	batch_size = 64
 	ppo_epoches = 10
-	sgamma = 0.7
+	sgamma = 0.9
 
 	w = 8
 	h = 8
 	dsize = 1
 	n_modules = 3
-	useGPU = True
+	useGPU = False
 
 
 	env_name = "s8813"
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-#	net.load_checkpoint("default")
+#	net.load_checkpoint("s8813")
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
@@ -53,7 +53,8 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
+	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=0.1)
+#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
 
