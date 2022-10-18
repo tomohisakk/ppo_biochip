@@ -15,7 +15,7 @@ class Params():
 	entropy_beta = 0.1
 	batch_size = 64
 	ppo_epoches = 10
-	sgamma = 0.6
+	sgamma = 0.3
 
 	w = 8
 	h = 8
