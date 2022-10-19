@@ -47,10 +47,9 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 #		print(self.map)
 	return False
 
-
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "s8813"
+	ENV_NAME = "s8813_lr3-5/1.0"
 	TOTAL_GAMES = 10000
 
 	W = 8
@@ -58,7 +57,7 @@ if __name__ == "__main__":
 	DSIZE = 1
 	N_MODULES = 3
 
-	IS_IMPORT = False
+	IS_IMPORT = True
 	lmaps = []
 	############################
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, n_modules=N_MODULES, test_flag=True)
@@ -84,7 +83,7 @@ if __name__ == "__main__":
 	map_symbols = Symbols()
 	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,n_modules=N_MODULES)
 
-	for n_games in range(TOTAL_GAMES):
+	for n_games in range(9999):
 		if IS_IMPORT:
 			map = maps[n_games]
 		else:
@@ -103,7 +102,6 @@ if __name__ == "__main__":
 		while not done:
 			observation = T.tensor([observation], dtype=T.float)
 			acts, _ = net(observation)
-#			print(acts)
 			action = T.argmax(acts).item()
 			observation, reward, done, message = env.step(action)
 			score += reward
@@ -114,17 +112,8 @@ if __name__ == "__main__":
 			if done:
 				break
 
-#		print("shortest:",len(path))
-#		print("stepnum:",n_steps)
-
 		if len(path)-1 == n_steps:
 			n_critical += 1
-#		else:
-#			print()
-#			print(observation[2])
-#			print(n_steps)
-
-#		writer.add_scalar("Step_num", n_steps, n_games)
 
 print("Finish " + str(TOTAL_GAMES) + " tests")
 print("Critical path: ", n_critical)

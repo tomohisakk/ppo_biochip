@@ -12,11 +12,11 @@ from sub_envs.map import Symbols
 from lib import common, ppo
 
 ###### Set params ##########
-TOTAL_GAMES = 1000
+TOTAL_GAMES = 10000
 W = 8
 H = 8
 DSIZE = 1
-N_MODULES = 2
+N_MODULES = 3
 ############################
 
 dir_name = "testmaps/size:%sx%s/dsize:%s/modlue:%s"%(W , H, DSIZE, N_MODULES)
