@@ -25,7 +25,7 @@ class Params():
 	useGPU = False
 
 
-	env_name = "s8813_lr4"
+	env_name = "d8813_lr4"
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2

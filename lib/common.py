@@ -20,7 +20,7 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 7
+GAMES = 10000
 EPOCHS = 100
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
