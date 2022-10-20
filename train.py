@@ -6,12 +6,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 from ignite.engine import Engine
 
-from sub_envs.static import MEDAEnv
-#from sub_envs.dynamic import MEDAEnv
+#from sub_envs.static import MEDAEnv
+from sub_envs.dynamic import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 0.001
+	lr = 0.0001
 	entropy_beta = 0.1
 	batch_size = 64
 	ppo_epoches = 10
@@ -20,11 +20,12 @@ class Params():
 	w = 8
 	h = 8
 	dsize = 1
-	n_modules = 3
+	s_modules = 3
+	d_modules = 3
 	useGPU = False
 
 
-	env_name = "s8813_lr3-5"
+	env_name = "s8813_lr4"
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2
@@ -35,7 +36,7 @@ class Params():
 params = Params()
 
 if __name__ == "__main__":
-	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, n_modules=params.n_modules)
+	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, s_modules=params.s_modules, d_modules=params.d_modules)
 
 	if params.useGPU == True:
 		device = T.device('cuda:0' if T.cuda.is_available else 'cpu')

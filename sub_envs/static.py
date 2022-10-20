@@ -14,14 +14,15 @@ class Actions(IntEnum):
 	W = 3
 
 class MEDAEnv(gym.Env):
-	def __init__(self, w=8, h=8, dsize=2, n_modules=2, test_flag=False):
+	def __init__(self, w=8, h=8, dsize=2, s_modules=2,d_modules=2, test_flag=False):
 		super(MEDAEnv, self).__init__()
 		assert w>0 and h>0 and dsize>0
-		assert 0<=n_modules
+		assert 0<=s_modules and 0<=d_modules
 		self.w = w
 		self.h = h
 		self.dsize = dsize
-		self.n_modules = n_modules
+		self.s_modules = s_modules
+		self.d_modules = d_modules
 		self.actions = Actions
 		self.action_space = len(self.actions)
 		self.observation_space = (3, w, h)
@@ -32,7 +33,7 @@ class MEDAEnv(gym.Env):
 		self.goal = (w-1, h-1)
 
 		self.map_symbols = Symbols()
-		self.mapclass = MakeMap(w=self.w,h=self.h,dsize=self.dsize,n_modules=n_modules)
+		self.mapclass = MakeMap(w=self.w,h=self.h,dsize=self.dsize,s_modules=s_modules, d_modules=d_modules)
 		self.map = self.mapclass.gen_random_map()
 
 		self.test_flag = test_flag
@@ -151,7 +152,7 @@ class MEDAEnv(gym.Env):
 					obs[0][i][j] = 1
 				elif self.map[j][i] == self.map_symbols.Goal:
 					obs[1][i][j] = 1
-				elif self.map[j][i] == self.map_symbols.Dynamic_module or self.map[j][i] == self.map_symbols.Static_module:
+				elif self.map[j][i] == self.map_symbols.Static_module:
 					obs[2][i][j] = 1
 #		print(obs)
 		return obs

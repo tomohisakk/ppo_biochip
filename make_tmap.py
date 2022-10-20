@@ -13,13 +13,15 @@ from lib import common, ppo
 
 ###### Set params ##########
 TOTAL_GAMES = 10000
-W = 8
-H = 8
-DSIZE = 1
-N_MODULES = 3
+W = 30
+H = 15
+DSIZE = 2
+S_MODULES = 10
+D_MODULES = 0
+
 ############################
 
-dir_name = "testmaps/size:%sx%s/dsize:%s/modlue:%s"%(W , H, DSIZE, N_MODULES)
+dir_name = "testmaps/size:%sx%s/dsize:%s/smodlue:%sdmodlue:%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
 bfile_name = "%s/map.pkl"%(dir_name)
 cfile_name = "%s/map.csv"%(dir_name)
 
@@ -29,7 +31,7 @@ if not os.path.exists(dir_name):
 data = {}
 
 map_symbols = Symbols()
-mapclass = MakeMap(w=W,h=H,dsize=DSIZE,n_modules=N_MODULES)
+mapclass = MakeMap(w=W,h=H,dsize=DSIZE,s_modules=S_MODULES,d_modules=D_MODULES)
 
 for i in range(TOTAL_GAMES):
 	map = mapclass.gen_random_map()

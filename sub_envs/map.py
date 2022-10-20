@@ -11,14 +11,15 @@ class Symbols():
 	Health = "."
 
 class MakeMap():
-	def __init__(self, w, h, dsize, n_modules):
+	def __init__(self, w, h, dsize, s_modules, d_modules):
 		super(MakeMap, self).__init__()
 		assert w>0 and h>0 and dsize>0
-		assert 0<=n_modules
+		assert 0<=s_modules and 0<=d_modules
 		self.w = w
 		self.h = h
 		self.dsize = dsize
-		self.n_modules = n_modules
+		self.s_modules = s_modules
+		self.d_modules = d_modules
 
 		self.symbols = Symbols()
 		self.map = self._make_map()
@@ -26,12 +27,12 @@ class MakeMap():
 	def _make_map(self):
 		map = np.random.choice([".", "#", '*'], (self.h, self.w), p=[1, 0, 0])
 
-		for _ in range(self.n_modules):
+		for _ in range(self.s_modules):
 			i = random.randint(0, self.w-1)
 			j = random.randint(0, self.h-1)
 			map[j][i] = '#'
 		
-		for _ in range(self.n_modules):
+		for _ in range(self.d_modules):
 			i = random.randint(0, self.w-1)
 			j = random.randint(0, self.h-1)
 			map[j][i] = '*'

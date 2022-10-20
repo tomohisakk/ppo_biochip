@@ -14,13 +14,13 @@ from ignite.contrib.handlers import tensorboard_logger as tb_logger
 import pickle
 import numpy as np
 import collections
-from sub_envs.static import MEDAEnv
-#from sub_envs.dynamic import MEDAEnv
+#from sub_envs.static import MEDAEnv
+from sub_envs.dynamic import MEDAEnv
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 70000
+GAMES = 7
 EPOCHS = 100
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
@@ -39,15 +39,15 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
 		if trainer.state.episode%GAMES == 0:
-			if (optimizer.param_groups[0]['lr'] > 1e-5):
-				scheduler.step()
-				print("LR: ", optimizer.param_groups[0]['lr'])
-			else:
-				save_name = params.env_name + "/" +str(trainer.state.episode/GAMES)
-				net.save_checkpoint(save_name)
-				if test(save_name, params.w, params.h, params.dsize, params.n_modules) == 1.0:
-					engine.terminate()
-					print("=== Learning end ===")
+#			if (optimizer.param_groups[0]['lr'] > 1e-5):
+#				scheduler.step()
+#				print("LR: ", optimizer.param_groups[0]['lr'])
+#			else:
+			save_name = params.env_name + "/" +str(trainer.state.episode/GAMES)
+			net.save_checkpoint(save_name)
+			if test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules) == 1.0:
+				engine.terminate()
+				print("=== Learning end ===")
 
 		if trainer.state.episode % 1000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
@@ -120,12 +120,12 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 #		print(self.map)
 	return False
 
-def test(test_name, w, h, dsize, n_modules):
+def test(test_name, w, h, dsize, s_modules, d_modules):
 	###### Set params ##########
 	############################
-	env = MEDAEnv(w, h, dsize, n_modules)
+	env = MEDAEnv(w, h, dsize, s_modules, d_modules)
 
-	dir_name = "testmaps/size:%sx%s/dsize:%s/modlue:%s"%(w , h, dsize, n_modules)
+	dir_name = "testmaps/size:%sx%s/dsize:%s/smodlue:%sdmodlue:%s"%(w , h, dsize, s_modules,d_modules)
 	file_name = "%s/map.pkl"%(dir_name)
 
 	save_file = open(file_name, "rb")
@@ -140,7 +140,7 @@ def test(test_name, w, h, dsize, n_modules):
 	n_critical = 0
 
 	map_symbols = Symbols()
-	mapclass = MakeMap(w,h,dsize,n_modules)
+	mapclass = MakeMap(w,h,dsize,s_modules, d_modules)
 
 	for n_games in range(9999):
 		tmap = maps[n_games]
