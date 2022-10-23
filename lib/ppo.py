@@ -95,7 +95,7 @@ class PPO(nn.Module):
 			nn.Dropout(0.2),
 			nn.Conv2d(64, 64, kernel_size=2, stride=1),
 			nn.ReLU(),
-			nn.Dropout(0.2)
+			nn.Dropout(0.5)
 		)
 
 		conv_out_size = self._get_conv_out(input_shape)
