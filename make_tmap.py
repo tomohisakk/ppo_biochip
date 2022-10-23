@@ -21,7 +21,7 @@ D_MODULES = 0
 
 ############################
 
-dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
+dir_name = "testmaps/%sx%s/%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
 bfile_name = "%s/map.pkl"%(dir_name)
 cfile_name = "%s/map.csv"%(dir_name)
 

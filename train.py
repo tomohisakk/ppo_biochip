@@ -21,12 +21,12 @@ class Params():
 	w = 8
 	h = 8
 	dsize = 2
-	s_modules = 3
-	d_modules = 3
+	s_modules = 0
+	d_modules = 0
 	useGPU = False
 
 
-	env_name = "88200"
+	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2

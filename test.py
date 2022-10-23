@@ -50,18 +50,16 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "88233>0.9/37"
-	TOTAL_GAMES = 10000
 
 	W = 8
 	H = 8
 	DSIZE = 2
-	S_MODULES = 3
-	D_MODULES = 3
+	S_MODULES = 0
+	D_MODULES = 0
 
-	IS_IMPORT = True
-	lmaps = []
 	############################
+	IS_IMPORT = True
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES)
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
 
 	if IS_IMPORT:
@@ -117,9 +115,8 @@ if __name__ == "__main__":
 		if len(path)-1 == n_steps:
 			n_critical += 1
 
-print("Finish " + str(TOTAL_GAMES) + " tests")
 print("Critical path: ", n_critical)
-print("Avg of critical path: ", n_critical/TOTAL_GAMES)
+print("Avg of critical path: ", n_critical/10000)
 
 if IS_IMPORT:
 	save_file.close()

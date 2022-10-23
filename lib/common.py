@@ -38,7 +38,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if trainer.state.episode % 2000 == 0:
+		if trainer.state.episode % 3000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
 			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
 			passed = trainer.state.metrics.get('time_passed', 0)
@@ -128,7 +128,7 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	############################
 	env = MEDAEnv(w, h, dsize, s_modules, d_modules)
 
-	dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(w , h, dsize, s_modules, d_modules)
+	dir_name = "testmaps/%sx%s/%s/%s,%s"%(w , h, dsize, s_modules, d_modules)
 	file_name = "%s/map.pkl"%(dir_name)
 
 	save_file = open(file_name, "rb")
