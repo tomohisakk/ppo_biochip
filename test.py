@@ -1,10 +1,11 @@
 import pickle
 import torch as T
+T.manual_seed(0)
 import numpy as np
 import collections
 
-from sub_envs.static import MEDAEnv
-#from sub_envs.dynamic import MEDAEnv
+#from sub_envs.static import MEDAEnv
+from sub_envs.dynamic import MEDAEnv
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import common, ppo
@@ -49,21 +50,22 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 
 if __name__ == "__main__":
 	###### Set params ##########
-	ENV_NAME = "s8813_lr3-5/1.0"
+	ENV_NAME = "88233>0.9/37"
 	TOTAL_GAMES = 10000
 
 	W = 8
 	H = 8
-	DSIZE = 1
-	N_MODULES = 3
+	DSIZE = 2
+	S_MODULES = 3
+	D_MODULES = 3
 
 	IS_IMPORT = True
 	lmaps = []
 	############################
-	env = MEDAEnv(w=W, h=H, dsize=DSIZE, n_modules=N_MODULES, test_flag=True)
+	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
 
 	if IS_IMPORT:
-		dir_name = "testmaps/size:%sx%s/dsize:%s/modlue:%s"%(W , H, DSIZE, N_MODULES)
+		dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
 		file_name = "%s/map.pkl"%(dir_name)
 
 		save_file = open(file_name, "rb")
@@ -75,22 +77,22 @@ if __name__ == "__main__":
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(ENV_NAME)
+	net.eval()
 
 	n_games = 0
 
 	n_critical = 0
 
 	map_symbols = Symbols()
-	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,n_modules=N_MODULES)
+	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,s_modules=S_MODULES, d_modules=D_MODULES)
 
-	for n_games in range(9999):
+	for n_games in range(10000):
 		if IS_IMPORT:
 			map = maps[n_games]
 		else:
 			map = mapclass.gen_random_map()
 #		print(map)
 
-		net.actor.train(False)
 		observation = env.reset(test_map=map)
 
 		done = False

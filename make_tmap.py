@@ -13,15 +13,15 @@ from lib import common, ppo
 
 ###### Set params ##########
 TOTAL_GAMES = 10000
-W = 30
-H = 15
+W = 8
+H = 8
 DSIZE = 2
-S_MODULES = 10
+S_MODULES = 0
 D_MODULES = 0
 
 ############################
 
-dir_name = "testmaps/size:%sx%s/dsize:%s/smodlue:%sdmodlue:%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
+dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
 bfile_name = "%s/map.pkl"%(dir_name)
 cfile_name = "%s/map.csv"%(dir_name)
 

@@ -1,7 +1,8 @@
 import ptan
 import time
 import numpy as np
-import torch
+import torch as T
+T.manual_seed(0)
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union, Callable, Optional
@@ -25,8 +26,8 @@ def batch_generator(exp_source, net, trajectory_size, ppo_epoches,
 		if last_done_index is None or last_done_index == len(trj_states)-1:
 			continue
 
-		trj_states_t = torch.FloatTensor(trj_states).to(device)
-		trj_actions_t = torch.tensor(trj_actions).to(device)
+		trj_states_t = T.FloatTensor(trj_states).to(device)
+		trj_actions_t = T.tensor(trj_actions).to(device)
 		policy_t, trj_values_t = net(trj_states_t)
 		trj_values_t = trj_values_t.squeeze()
 
@@ -37,7 +38,7 @@ def batch_generator(exp_source, net, trajectory_size, ppo_epoches,
 
 		logpolicy_t = F.log_softmax(policy_t, dim=1)
 		old_logprob_t = logpolicy_t.gather(1, trj_actions_t.unsqueeze(-1)).squeeze(-1)
-		adv_t = (adv_t - torch.mean(adv_t)) / torch.std(adv_t)
+		adv_t = (adv_t - T.mean(adv_t)) / T.std(adv_t)
 		old_logprob_t = old_logprob_t.detach()
 
 		trj_len = len(trj_states) - 1
@@ -78,7 +79,7 @@ def calc_adv_ref(values, dones, rewards, gamma, gae_lambda):
 		ref.append(last_gae + val)
 	adv = list(reversed(adv))
 	ref = list(reversed(ref))
-	return torch.FloatTensor(adv), torch.FloatTensor(ref)
+	return T.FloatTensor(adv), T.FloatTensor(ref)
 
 
 class PPO(nn.Module):
@@ -88,10 +89,13 @@ class PPO(nn.Module):
 		self.conv = nn.Sequential(
 			nn.Conv2d(input_shape[0], 32, kernel_size=2, stride=2),
 			nn.ReLU(),
+			nn.Dropout(0.2),
 			nn.Conv2d(32, 64, kernel_size=2, stride=1),
 			nn.ReLU(),
+			nn.Dropout(0.2),
 			nn.Conv2d(64, 64, kernel_size=2, stride=1),
-			nn.ReLU()
+			nn.ReLU(),
+			nn.Dropout(0.5)
 		)
 
 		conv_out_size = self._get_conv_out(input_shape)
@@ -107,7 +111,7 @@ class PPO(nn.Module):
 		)
 
 	def _get_conv_out(self, shape):
-		o = self.conv(torch.zeros(1, *shape))
+		o = self.conv(T.zeros(1, *shape))
 		return int(np.prod(o.size()))
 
 	def forward(self, x):
@@ -117,7 +121,7 @@ class PPO(nn.Module):
 
 	def save_checkpoint(self, env_name):
 		print("... saveing checkpoint ...")
-		torch.save(self.state_dict(), "saves/" + env_name)
+		T.save(self.state_dict(), "saves/" + env_name + ".pt")
 
 	def load_checkpoint(self, env_name):
-		self.load_state_dict(torch.load("saves/" + env_name))
+		self.load_state_dict(T.load("saves/" + env_name + ".pt"))

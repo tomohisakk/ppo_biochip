@@ -1,6 +1,7 @@
 import ptan
 import warnings
 import torch as T
+T.manual_seed(0)
 import numpy as np
 import torch.nn as nn
 from typing import Iterable
@@ -20,8 +21,7 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 10000
-EPOCHS = 100
+GAMES = 30000
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
@@ -38,18 +38,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if trainer.state.episode%GAMES == 0:
-#			if (optimizer.param_groups[0]['lr'] > 1e-5):
-#				scheduler.step()
-#				print("LR: ", optimizer.param_groups[0]['lr'])
-#			else:
-			save_name = params.env_name + "/" +str(trainer.state.episode/GAMES)
-			net.save_checkpoint(save_name)
-			if test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules) == 1.0:
-				engine.terminate()
-				print("=== Learning end ===")
-
-		if trainer.state.episode % 1000 == 0:
+		if trainer.state.episode % 2000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
 			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
 			passed = trainer.state.metrics.get('time_passed', 0)
@@ -60,6 +49,20 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 				trainer.state.metrics.get('avg_fps', 0),
 				timedelta(seconds=int(passed))))
 
+		if trainer.state.episode%GAMES == 0:
+#			if (optimizer.param_groups[0]['lr'] > 1e-6):
+#				scheduler.step()
+#				print("LR: ", optimizer.param_groups[0]['lr'])
+#			else:
+			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
+			net.save_checkpoint(save_name)
+			if test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules) == 1.0:
+				engine.terminate()
+				print("=== Learning end ===")
+#				critical_ctr += 1
+#				print(save_name + " is critical")
+#				print("critical_ctr:", critical_ctr)
+#				if critical_ctr == 5:
 
 	now = datetime.now().isoformat(timespec='minutes')
 	logdir = f"runs/{now}-{params.env_name}"
@@ -125,7 +128,7 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	############################
 	env = MEDAEnv(w, h, dsize, s_modules, d_modules)
 
-	dir_name = "testmaps/size:%sx%s/dsize:%s/smodlue:%sdmodlue:%s"%(w , h, dsize, s_modules,d_modules)
+	dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(w , h, dsize, s_modules, d_modules)
 	file_name = "%s/map.pkl"%(dir_name)
 
 	save_file = open(file_name, "rb")
@@ -135,17 +138,18 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(test_name)
+	net.eval()
 
 	n_games = 0
 	n_critical = 0
+	unreach_flag = False
 
 	map_symbols = Symbols()
 	mapclass = MakeMap(w,h,dsize,s_modules, d_modules)
 
-	for n_games in range(9999):
+	for n_games in range(10000):
 		tmap = maps[n_games]
 
-		net.actor.train(False)
 		observation = env.reset(test_map=tmap)
 
 		done = False
@@ -167,10 +171,19 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 			if done:
 				break
 
-		if len(path)-1 == n_steps:
+#		if 32 > n_steps:
+#			n_critical += 1
+
+		if observation[0][w-1][h-1] == 0:
+			unreach_flag = True
+
+		if len(path)-1 >= n_steps:
 			n_critical += 1
 		
 	save_file.close()
 	print("Test result is ", n_critical/10000)
 
-	return (n_critical/10000)
+	if unreach_flag:
+		return 0
+	else:
+		return (n_critical/10000)

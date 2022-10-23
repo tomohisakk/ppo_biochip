@@ -2,6 +2,7 @@ import os
 import ptan
 import time
 import torch as T
+T.manual_seed(0)
 import torch.optim as optim
 import torch.nn.functional as F
 from ignite.engine import Engine
@@ -11,21 +12,21 @@ from sub_envs.dynamic import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 0.0001
+	lr = 0.001
 	entropy_beta = 0.1
 	batch_size = 64
 	ppo_epoches = 10
-	sgamma = 0.1
+	sgamma = 0.6
 
 	w = 8
 	h = 8
-	dsize = 1
+	dsize = 2
 	s_modules = 3
 	d_modules = 3
 	useGPU = False
 
 
-	env_name = "d8813_lr4"
+	env_name = "88200"
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2
@@ -45,7 +46,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-#	net.load_checkpoint("s8813")
+#	net.load_checkpoint("88230/19")
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
@@ -54,7 +55,7 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-#	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
+#	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=0.1)
 	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
