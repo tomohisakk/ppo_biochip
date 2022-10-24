@@ -1,7 +1,6 @@
 import ptan
 import warnings
 import torch as T
-T.manual_seed(0)
 import numpy as np
 import torch.nn as nn
 from typing import Iterable
@@ -21,7 +20,7 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 30000
+GAMES = 3000
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
@@ -38,7 +37,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if trainer.state.episode % 3000 == 0:
+		if trainer.state.episode % 1000 == 0:
 			mean_reward = np.mean(total_rewards[-GAMES:])
 			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
 			passed = trainer.state.metrics.get('time_passed', 0)
@@ -126,6 +125,7 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 def test(test_name, w, h, dsize, s_modules, d_modules):
 	###### Set params ##########
 	############################
+
 	env = MEDAEnv(w, h, dsize, s_modules, d_modules)
 
 	dir_name = "testmaps/%sx%s/%s/%s,%s"%(w , h, dsize, s_modules, d_modules)
@@ -147,7 +147,7 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	map_symbols = Symbols()
 	mapclass = MakeMap(w,h,dsize,s_modules, d_modules)
 
-	for n_games in range(10000):
+	for n_games in range(10):
 		tmap = maps[n_games]
 
 		observation = env.reset(test_map=tmap)
@@ -186,4 +186,4 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	if unreach_flag:
 		return 0
 	else:
-		return (n_critical/10000)
+		return (n_critical/10)

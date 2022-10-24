@@ -2,7 +2,6 @@ import ptan
 import time
 import numpy as np
 import torch as T
-T.manual_seed(0)
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union, Callable, Optional
@@ -87,13 +86,13 @@ class PPO(nn.Module):
 		super(PPO, self).__init__()
 
 		self.conv = nn.Sequential(
-			nn.Conv2d(input_shape[0], 32, kernel_size=2, stride=2),
+			nn.Conv2d(input_shape[0], 32, kernel_size=3, stride=2, padding=1),
 			nn.ReLU(),
 			nn.Dropout(0.2),
-			nn.Conv2d(32, 64, kernel_size=2, stride=1),
+			nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
 			nn.ReLU(),
 			nn.Dropout(0.2),
-			nn.Conv2d(64, 64, kernel_size=2, stride=1),
+			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
 			nn.ReLU(),
 			nn.Dropout(0.5)
 		)

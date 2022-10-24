@@ -1,6 +1,6 @@
+import random
 import pickle
 import torch as T
-T.manual_seed(0)
 import numpy as np
 import collections
 
@@ -9,7 +9,6 @@ from sub_envs.dynamic import MEDAEnv
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import common, ppo
-
 
 def _is_touching(dstate, obj, map, dsize):
 		i = 0
@@ -53,17 +52,22 @@ if __name__ == "__main__":
 
 	W = 8
 	H = 8
-	DSIZE = 2
+	DSIZE = 1
 	S_MODULES = 0
 	D_MODULES = 0
+	N_EPOCH = 1
 
 	############################
+
+	random.seed(123)
+	T.manual_seed(123)
+
 	IS_IMPORT = True
-	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES)
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
 
 	if IS_IMPORT:
-		dir_name = "testmaps/%sx%s/dsize:%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
+		dir_name = "testmaps/%sx%s/%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
 		file_name = "%s/map.pkl"%(dir_name)
 
 		save_file = open(file_name, "rb")
@@ -84,7 +88,7 @@ if __name__ == "__main__":
 	map_symbols = Symbols()
 	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,s_modules=S_MODULES, d_modules=D_MODULES)
 
-	for n_games in range(10000):
+	for n_games in range(10):
 		if IS_IMPORT:
 			map = maps[n_games]
 		else:
@@ -116,7 +120,7 @@ if __name__ == "__main__":
 			n_critical += 1
 
 print("Critical path: ", n_critical)
-print("Avg of critical path: ", n_critical/10000)
+print("Avg of critical path: ", n_critical/10)
 
 if IS_IMPORT:
 	save_file.close()

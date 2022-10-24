@@ -1,8 +1,8 @@
 import os
 import ptan
 import time
+import random
 import torch as T
-T.manual_seed(0)
 import torch.optim as optim
 import torch.nn.functional as F
 from ignite.engine import Engine
@@ -13,7 +13,7 @@ from lib import common, ppo
 
 class Params():
 	lr = 0.001
-	entropy_beta = 0.1
+	entropy_beta = 0.01
 	batch_size = 64
 	ppo_epoches = 10
 	sgamma = 0.6
@@ -38,6 +38,9 @@ params = Params()
 
 if __name__ == "__main__":
 	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, s_modules=params.s_modules, d_modules=params.d_modules)
+
+	random.seed(123)
+	T.manual_seed(123)
 
 	if params.useGPU == True:
 		device = T.device('cuda:0' if T.cuda.is_available else 'cpu')
