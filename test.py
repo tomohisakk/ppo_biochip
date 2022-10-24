@@ -1,4 +1,3 @@
-import random
 import pickle
 import torch as T
 import numpy as np
@@ -48,6 +47,7 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 	return False
 
 if __name__ == "__main__":
+	T.manual_seed(1)
 	###### Set params ##########
 
 	W = 8
@@ -58,69 +58,11 @@ if __name__ == "__main__":
 	N_EPOCH = 1
 
 	############################
-
-	random.seed(123)
-	T.manual_seed(123)
-
-	IS_IMPORT = True
-	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
-	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
-
-	if IS_IMPORT:
-		dir_name = "testmaps/%sx%s/%s/%s,%s"%(W , H, DSIZE, S_MODULES, D_MODULES)
-		file_name = "%s/map.pkl"%(dir_name)
-
-		save_file = open(file_name, "rb")
-		maps = pickle.load(save_file)
-
 	device = T.device('cpu')
-
-	CHECKPOINT_PATH = "saves/" + ENV_NAME
-
+	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(ENV_NAME)
-	net.eval()
 
-	n_games = 0
-
-	n_critical = 0
-
-	map_symbols = Symbols()
-	mapclass = MakeMap(w=W,h=H,dsize=DSIZE,s_modules=S_MODULES, d_modules=D_MODULES)
-
-	for n_games in range(10):
-		if IS_IMPORT:
-			map = maps[n_games]
-		else:
-			map = mapclass.gen_random_map()
-#		print(map)
-
-		observation = env.reset(test_map=map)
-
-		done = False
-		score = 0
-		n_steps = 0
-
-		path = _compute_shortest_route(W, H, DSIZE, map_symbols, map, (0,0))
-
-		while not done:
-			observation = T.tensor([observation], dtype=T.float)
-			acts, _ = net(observation)
-			action = T.argmax(acts).item()
-			observation, reward, done, message = env.step(action)
-			score += reward
-
-			if message == None:
-				n_steps += 1
-
-			if done:
-				break
-
-		if len(path)-1 == n_steps:
-			n_critical += 1
-
-print("Critical path: ", n_critical)
-print("Avg of critical path: ", n_critical/10)
-
-if IS_IMPORT:
-	save_file.close()
+	test_result = common.test(net, W, H, DSIZE, S_MODULES, D_MODULES)
+	print(test_result)

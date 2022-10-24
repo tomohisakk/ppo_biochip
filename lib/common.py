@@ -20,7 +20,7 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 3000
+GAMES = 10000
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
@@ -55,7 +55,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 #			else:
 			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
 			net.save_checkpoint(save_name)
-			if test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules) == 1.0:
+			if test(net, params.w, params.h, params.dsize, params.s_modules, params.d_modules) == 1.0:
 				engine.terminate()
 				print("=== Learning end ===")
 #				critical_ctr += 1
@@ -122,7 +122,7 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 #		print(self.map)
 	return False
 
-def test(test_name, w, h, dsize, s_modules, d_modules):
+def test(net, w, h, dsize, s_modules, d_modules):
 	###### Set params ##########
 	############################
 
@@ -134,11 +134,12 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	save_file = open(file_name, "rb")
 	maps = pickle.load(save_file)
 
-	device = T.device('cpu')
-
-	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-	net.load_checkpoint(test_name)
 	net.eval()
+
+	print(net.actor[0].weight)
+	print(net.actor[0].bias)
+	print(net.actor[2].weight)
+	print(net.actor[2].bias)
 
 	n_games = 0
 	n_critical = 0
@@ -147,7 +148,7 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 	map_symbols = Symbols()
 	mapclass = MakeMap(w,h,dsize,s_modules, d_modules)
 
-	for n_games in range(10):
+	for n_games in range(10000):
 		tmap = maps[n_games]
 
 		observation = env.reset(test_map=tmap)
@@ -181,7 +182,9 @@ def test(test_name, w, h, dsize, s_modules, d_modules):
 			n_critical += 1
 		
 	save_file.close()
-	print("Test result is ", n_critical/10000)
+	print("Test result is ", n_critical/10)
+
+	net.train()
 
 	if unreach_flag:
 		return 0

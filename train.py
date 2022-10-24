@@ -1,7 +1,6 @@
 import os
 import ptan
 import time
-import random
 import torch as T
 import torch.optim as optim
 import torch.nn.functional as F
@@ -12,7 +11,7 @@ from sub_envs.dynamic import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 0.001
+	lr = 0.0001
 	entropy_beta = 0.01
 	batch_size = 64
 	ppo_epoches = 10
@@ -23,7 +22,7 @@ class Params():
 	dsize = 1
 	s_modules = 0
 	d_modules = 0
-	importf = "88100/1"
+	importf = "88100/7"
 
 	useGPU = False
 	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
@@ -37,10 +36,8 @@ class Params():
 params = Params()
 
 if __name__ == "__main__":
+	T.manual_seed(1)
 	env = MEDAEnv(w=params.w, h=params.h, dsize=params.dsize, s_modules=params.s_modules, d_modules=params.d_modules)
-
-	random.seed(123)
-	T.manual_seed(123)
 
 	if params.useGPU == True:
 		device = T.device('cuda:0' if T.cuda.is_available else 'cpu')
