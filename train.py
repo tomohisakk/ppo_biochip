@@ -24,7 +24,7 @@ class Params():
 	d_modules = 0
 	importf = "88100/1"
 
-	useGPU = True
+	useGPU = False
 	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
 	gamma = 0.99
 	gae_lambda = 0.95
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-	net.load_checkpoint(params.importf)
+#	net.load_checkpoint(params.importf)
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
