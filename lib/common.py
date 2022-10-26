@@ -20,7 +20,7 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 10000
+GAMES = 30000
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
@@ -125,8 +125,10 @@ def _compute_shortest_route(w, h, dsize, symbols,map, start):
 def test(net, w, h, dsize, s_modules, d_modules):
 	###### Set params ##########
 	############################
-
 	env = MEDAEnv(w, h, dsize, s_modules, d_modules)
+
+	for param in net.parameters():
+		param.requires_grad = False
 
 	dir_name = "testmaps/%sx%s/%s/%s,%s"%(w , h, dsize, s_modules, d_modules)
 	file_name = "%s/map.pkl"%(dir_name)
@@ -134,20 +136,18 @@ def test(net, w, h, dsize, s_modules, d_modules):
 	save_file = open(file_name, "rb")
 	maps = pickle.load(save_file)
 
-	net.eval()
-
-	print(net.actor[0].weight)
-	print(net.actor[0].bias)
-	print(net.actor[2].weight)
-	print(net.actor[2].bias)
+#	print(net.actor[0].weight)
+#	print(net.actor[0].bias)
+#	print(net.actor[2].weight)
+#	print(net.actor[2].bias)
 
 	n_games = 0
-	n_critical = 0
 	unreach_flag = False
 
 	map_symbols = Symbols()
 	mapclass = MakeMap(w,h,dsize,s_modules, d_modules)
 
+	n_critical = 0
 	for n_games in range(10000):
 		tmap = maps[n_games]
 
@@ -156,37 +156,44 @@ def test(net, w, h, dsize, s_modules, d_modules):
 		done = False
 		score = 0
 		n_steps = 0
+		n_degrad = 0
 
 		path = _compute_shortest_route(w, h, dsize, map_symbols, tmap, (0,0))
 
 		while not done:
 			observation = T.tensor([observation], dtype=T.float)
-			acts, _ = net(observation)
+			with T.no_grad():
+				net.eval()
+				acts, _ = net(observation)
 			action = T.argmax(acts).item()
 			observation, reward, done, message = env.step(action)
 			score += reward
+			n_steps += 1
 
 			if message == None:
-				n_steps += 1
+				n_degrad += 1
 
 			if done:
 				break
 
-#		if 32 > n_steps:
-#			n_critical += 1
+#		if observation[0][w-1][h-1] == 0:
+#			net.train()
+#			for param in net.parameters():
+#				param.requires_grad = True
+#			return 0
 
-		if observation[0][w-1][h-1] == 0:
-			unreach_flag = True
-
-		if len(path)-1 >= n_steps:
+		if 32 > n_steps:
 			n_critical += 1
+
+#		if len(path)-1 >= n_steps:
+#			n_critical += 1
 		
-	save_file.close()
-	print("Test result is ", n_critical/10)
+	print("Test result is ", n_critical/10000)
 
 	net.train()
+	for param in net.parameters():
+		param.requires_grad = True
 
-	if unreach_flag:
-		return 0
-	else:
-		return (n_critical/10)
+	save_file.close()
+
+	return (n_critical/10000)

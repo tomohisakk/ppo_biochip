@@ -52,17 +52,20 @@ if __name__ == "__main__":
 
 	W = 8
 	H = 8
-	DSIZE = 1
+	DSIZE = 3
 	S_MODULES = 0
-	D_MODULES = 0
+	D_MODULES = 3
 	N_EPOCH = 1
 
 	############################
 	device = T.device('cpu')
 	env = MEDAEnv(w=W, h=H, dsize=DSIZE, s_modules=S_MODULES, d_modules=D_MODULES, test_flag=True)
-	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
+#	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + ">0.9" + "/" + str(N_EPOCH)
+	device = T.device('cpu')
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
 	net.load_checkpoint(ENV_NAME)
 
 	test_result = common.test(net, W, H, DSIZE, S_MODULES, D_MODULES)
+
 	print(test_result)

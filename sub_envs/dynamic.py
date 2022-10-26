@@ -60,16 +60,20 @@ class MEDAEnv(gym.Env):
 		_dist = self._get_dist(self.state, self.goal)
 		self._update_position(action)
 
-		if self.dynamic_flag == 1:
-			dist = self._get_dist(self.dynamic_state, self.goal)
-			self.dynamic_flag = 0
-			message = "derror"
-		else:
-			dist = self._get_dist(self.state, self.goal)
+#		if self.dynamic_flag == 1:
+#			dist = self._get_dist(self.dynamic_state, self.goal)
+#			self.dynamic_flag = 0
+#			message = "derror"
+#		else:
+		dist = self._get_dist(self.state, self.goal)
 
 		if dist <= (self.dsize-1)*math.sqrt(2):
 			reward = 0
 			done = True
+		elif self.dynamic_flag == 1:
+			reward = 0
+			self.dynamic_flag = 0
+			message = "derror"
 		elif self.n_steps == self.max_step:
 			reward = -1
 			done = True
