@@ -13,9 +13,8 @@ from lib import common, ppo
 class Params():
 	lr = 0.001
 	entropy_beta = 0.01
-	batch_size = 64
+	batch_size = 16
 	ppo_epoches = 10
-	sgamma = 0.6
 
 	w = 8
 	h = 8
@@ -29,7 +28,7 @@ class Params():
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2
-	ppo_trajectory = 2049
+	ppo_trajectory = 1025
 	stop_test_reward = 10000
 	stop_reward = None
 
@@ -55,10 +54,10 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
-#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+#	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
+	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
-	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=params.sgamma)
+	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)
 
 	if not os.path.exists("saves"):
 		os.makedirs("saves")

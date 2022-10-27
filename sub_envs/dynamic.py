@@ -70,13 +70,13 @@ class MEDAEnv(gym.Env):
 		if dist <= (self.dsize-1)*math.sqrt(2):
 			reward = 0
 			done = True
+		elif self.n_steps == self.max_step:
+			reward = -1
+			done = True
 		elif self.dynamic_flag == 1:
 			reward = 0
 			self.dynamic_flag = 0
 			message = "derror"
-		elif self.n_steps == self.max_step:
-			reward = -1
-			done = True
 		elif dist < _dist:
 			reward = -0.1
 		else:
