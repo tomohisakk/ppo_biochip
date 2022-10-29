@@ -11,16 +11,16 @@ from sub_envs.dynamic import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 0.001
+	lr = 0.003
 	entropy_beta = 0.01
-	batch_size = 16
+	batch_size = 64
 	ppo_epoches = 10
 
 	w = 8
 	h = 8
 	dsize = 1
 	s_modules = 0
-	d_modules = 0
+	d_modules = 3
 	importf = "88100/1"
 
 	useGPU = False
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-#	net.load_checkpoint(params.importf)
+	net.load_checkpoint(params.importf)
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,

@@ -111,7 +111,7 @@ class PPO(nn.Module):
 		return int(np.prod(o.size()))
 
 	def forward(self, x):
-		fx = x.float() / 2
+		fx = x.float() / 1
 		conv_out = self.conv(fx).view(fx.size()[0], -1)
 		return self.actor(conv_out), self.critic(conv_out)
 

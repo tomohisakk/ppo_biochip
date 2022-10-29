@@ -57,7 +57,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		if trainer.state.episode%GAMES == 0:
 			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
 			net.save_checkpoint(save_name)
-#			if test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules) >= 0.9:
+			tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
 #				engine.terminate()
 #				print("=== Learning end ===")
 #				critical_ctr += 1
@@ -198,7 +198,7 @@ def test(save_name, w, h, dsize, s_modules, d_modules):
 
 		if len(path)-1 == n_degrad:
 			n_critical += 1
-		
+
 	print("Test result is ", n_critical/10000)
 
 	save_file.close()
