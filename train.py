@@ -11,17 +11,17 @@ from sub_envs.dynamic import MEDAEnv
 from lib import common, ppo
 
 class Params():
-	lr = 0.003
+	lr = 0.001
 	entropy_beta = 0.01
-	batch_size = 64
-	ppo_epoches = 10
+	batch_size = 8
+	ppo_epoches = 5
 
 	w = 8
 	h = 8
-	dsize = 1
+	dsize = 3
 	s_modules = 0
 	d_modules = 3
-	importf = "88100/1"
+	importf = "88300/1"
 
 	useGPU = False
 	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)

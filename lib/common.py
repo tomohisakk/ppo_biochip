@@ -21,7 +21,7 @@ from sub_envs.map import Symbols
 from lib import ppo
 
 GAMES = 20000
-N_EPOCH = 70
+N_EPOCH = 10
 
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
@@ -49,12 +49,11 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 				trainer.state.metrics.get('avg_fps', 0),
 				timedelta(seconds=int(passed))))
 
-		if trainer.state.episode%(10*GAMES) == 0:
-			if (optimizer.param_groups[0]['lr'] > 1e-6):
+		if trainer.state.episode%GAMES == 0:
+			if (optimizer.param_groups[0]['lr'] > 1e-7):
 				scheduler.step()
 				print("LR: ", optimizer.param_groups[0]['lr'])
-
-		if trainer.state.episode%GAMES == 0:
+#		if trainer.state.episode%GAMES == 0:
 			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
 			net.save_checkpoint(save_name)
 			tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
