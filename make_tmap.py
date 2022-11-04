@@ -15,7 +15,7 @@ from lib import common, ppo
 TOTAL_GAMES = 10000
 W = 8
 H = 8
-DSIZE = 3
+DSIZE = 1
 S_MODULES = 0
 D_MODULES = 6
 
