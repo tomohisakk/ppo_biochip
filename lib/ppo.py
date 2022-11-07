@@ -98,12 +98,15 @@ class PPO(nn.Module):
 		self.actor = nn.Sequential(
 			nn.Linear(conv_out_size, 256),
 			nn.ReLU(),
-			nn.Linear(256, n_actions)
+			nn.Dropout(0.5),
+			nn.Linear(256, n_actions),
+			nn.Softmax()
 		)
 		self.critic = nn.Sequential(
-			nn.Linear(conv_out_size, 128),
+			nn.Linear(conv_out_size, 256),
 			nn.ReLU(),
-			nn.Linear(128, 1)
+			nn.Dropout(0.5),
+			nn.Linear(256, 1)
 		)
 
 	def _get_conv_out(self, shape):

@@ -24,7 +24,7 @@ class Params():
 	importf = "881030.0001/6"
 
 	useGPU = True
-	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)+str(lr)
+	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
 	gamma = 0.99
 	gae_lambda = 0.95
 	ppo_eps =  0.2
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 #	net.load_checkpoint(params.importf)
 	print(net)
 
-	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=True,
+	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=False,
 								   preprocessor=ptan.agent.float32_preprocessor,
 								   device=device)
 

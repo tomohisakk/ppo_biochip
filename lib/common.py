@@ -39,8 +39,8 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
 		if trainer.state.episode % 1000 == 0:
-			mean_reward = np.mean(total_rewards[-GAMES:])
-			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
+			mean_reward = np.mean(total_rewards[-1000:])
+			mean_n_steps = np.mean(total_n_steps_ep[-1000:])
 			passed = trainer.state.metrics.get('time_passed', 0)
 			print("Episode/Games %d/%d: reward=%.2f, steps=%d, "
 				"speed=%.1f f/s, elapsed=%s" % (
@@ -60,7 +60,7 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 #			print("LR: ", optimizer.param_groups[0]['lr'])
 
 		if trainer.state.episode%GAMES == 0:
-			if optimizer.param_groups[0]['lr'] > 1e-6:
+			if optimizer.param_groups[0]['lr'] > 1e-7:
 				scheduler.step()
 				print("LR: ", optimizer.param_groups[0]['lr'])
 			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))

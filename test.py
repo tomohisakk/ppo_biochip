@@ -52,14 +52,14 @@ if __name__ == "__main__":
 
 	W = 8
 	H = 8
-	DSIZE = 3
+	DSIZE = 1
 	S_MODULES = 0
-	D_MODULES = 0
-	N_EPOCH = 1
+	D_MODULES = 3
+	N_EPOCH = 24
 
 	############################
 	device = T.device('cpu')
-	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES)+"0.001" + "/" + str(N_EPOCH)
 #	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + ">0.9" + "/" + str(N_EPOCH)
 
 	test_result = common.test(ENV_NAME, W, H, DSIZE, S_MODULES, D_MODULES)
