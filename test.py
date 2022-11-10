@@ -9,6 +9,9 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import common, ppo
 
+import warnings
+warnings.filterwarnings("ignore")
+
 def _is_touching(dstate, obj, map, dsize):
 		i = 0
 		while True:
@@ -55,10 +58,10 @@ if __name__ == "__main__":
 	DSIZE = 1
 	S_MODULES = 0
 	D_MODULES = 3
-	N_EPOCH = 24
+	N_EPOCH = 8
 
 	############################
-	device = T.device('cpu')
+	device = T.device('cuda:0')
 	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES)+"0.001" + "/" + str(N_EPOCH)
 #	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + ">0.9" + "/" + str(N_EPOCH)
 

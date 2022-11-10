@@ -8,10 +8,10 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 
 class Actions(IntEnum):
-	N = 0
-	E = 1
-	S = 2
-	W = 3
+	U = 0
+	R = 1
+	D = 2
+	L = 3
 
 class MEDAEnv(gym.Env):
 	def __init__(self, w=8, h=8, dsize=2, s_modules=2, d_modules=2, test_flag=False):
@@ -82,12 +82,11 @@ class MEDAEnv(gym.Env):
 		else:
 			reward = -0.3
 
-		
-#		if self.test_flag == True:
-#			print(self.map)
+
+#		print(Actions(action))
+#		print(self.map)
 
 		obs = self._get_obs()
-#		print(self.map)
 
 		return obs, reward, done, message
 
@@ -115,16 +114,20 @@ class MEDAEnv(gym.Env):
 	def _update_position(self, action):
 		state_ = list(self.state)
 
-		if action == Actions.N:
+#		print(state_)
+		if action == Actions.U:
 			state_[1] -= 1
-		elif action == Actions.E:
+		elif action == Actions.R:
 			state_[0] += 1
-		elif action == Actions.S:
+		elif action == Actions.D:
 			state_[1] += 1
-		else:
+		elif action == Actions.L:
 			state_[0] -= 1
+		else:
+			print("Unexpected action")
+			return 0
 
-		if (0 <= state_[1] < self.h-self.dsize+1) and (0 <= state_[0] < self.w-self.dsize+1) and\
+		if (0 <= state_[1] <= self.h-self.dsize) and (0 <= state_[0] <= self.w-self.dsize) and\
 		   (self._is_touching(state_, self.map_symbols.Dynamic_module) == False) and (self._is_touching(state_, self.map_symbols.Static_module) == False):
 #			print("okok")
 			i = 0
@@ -139,7 +142,10 @@ class MEDAEnv(gym.Env):
 				if i == self.dsize:
 					break
 
+#			print(Actions(action))
+#			print(self.state)
 			self.state = state_
+#			print(self.state)
 
 			# Set Droplet state
 			i = 0
