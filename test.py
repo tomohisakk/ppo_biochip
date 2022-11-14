@@ -58,12 +58,11 @@ if __name__ == "__main__":
 	DSIZE = 1
 	S_MODULES = 0
 	D_MODULES = 3
-	N_EPOCH = 8
+	N_EPOCH = 27
 
 	############################
 	device = T.device('cuda:0')
-	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES)+"0.001" + "/" + str(N_EPOCH)
-#	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + ">0.9" + "/" + str(N_EPOCH)
+	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
 
 	test_result = common.test(ENV_NAME, W, H, DSIZE, S_MODULES, D_MODULES)
 

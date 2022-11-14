@@ -20,9 +20,6 @@ from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
 from lib import ppo
 
-GAMES = 10000
-N_EPOCH = 30
-
 def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: str, 
 				 net, optimizer, scheduler, extra_metrics: Iterable[str] = ()):
 	warnings.simplefilter("ignore", category=UserWarning)
@@ -39,41 +36,25 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
 		if trainer.state.episode % 1000 == 0:
-			mean_reward = np.mean(total_rewards[-GAMES:])
-			mean_n_steps = np.mean(total_n_steps_ep[-GAMES:])
+			mean_reward = np.mean(total_rewards[-params.games:])
+			mean_n_steps = np.mean(total_n_steps_ep[-params.games:])
 			passed = trainer.state.metrics.get('time_passed', 0)
 			print("%d/%d: reward=%.2f, steps=%d, elapsed=%s" % (
-				trainer.state.episode/GAMES, trainer.state.episode, 
+				trainer.state.episode/params.games, trainer.state.episode, 
 				mean_reward, mean_n_steps,
 				timedelta(seconds=int(passed))))
 
-#		if trainer.state.episode==50000:
-#				scheduler.step()
-#				print("LR: ", optimizer.param_groups[0]['lr'])
-#				save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
-#				net.save_checkpoint(save_name)
-#				tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
-#		elif trainer.state.episode==50000:
-#			scheduler.step()
-#			print("LR: ", optimizer.param_groups[0]['lr'])
-#			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
-#			net.save_checkpoint(save_name)
-#			tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
-
-		if trainer.state.episode%GAMES == 0:
-			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
+		if trainer.state.episode%params.games == 0:
+			save_name = params.env_name + "/" +str(int(trainer.state.episode/params.games))
 			net.save_checkpoint(save_name)
 			tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
+			if tmp != 0:
+				engine.terminate()
+				print("=== Learning end ===")
 
-			if trainer.state.episode%(5*GAMES) == 0:
+			if trainer.state.episode%(10*params.games) == 0:
 				scheduler.step()
 				print("LR: ", optimizer.param_groups[0]['lr'])
-
-		if trainer.state.episode == (N_EPOCH*GAMES):
-			save_name = params.env_name + "/" +str(int(trainer.state.episode/GAMES))
-			net.save_checkpoint(save_name)
-			engine.terminate()
-			print("=== Learning end ===")
 
 	now = datetime.now().isoformat(timespec='minutes')
 	logdir = f"runs/{now}-{params.env_name}"
@@ -199,9 +180,9 @@ def test(save_name, w, h, dsize, s_modules, d_modules):
 #				param.requires_grad = True
 #			return 0
 
-		if 32 == n_steps:
+		if 100 == n_steps:
 			print(n_games)
-			return 0
+#			return 0
 
 		if len(path)-1 == n_degrad:
 			n_critical += 1

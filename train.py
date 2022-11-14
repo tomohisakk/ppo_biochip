@@ -14,23 +14,28 @@ import warnings
 warnings.filterwarnings("ignore")
 
 class Params():
+###########################
+
+	games = 10000
 	lr = 1e-4
-	entropy_beta = 0.01
-	batch_size = 64
-	ppo_epoches = 10
+	entropy_beta = 0.3
+	batch_size = 32
+	ppo_epoches = 3
 
 	w = 8
 	h = 8
 	dsize = 1
 	s_modules = 0
 	d_modules = 3
-	importf = "88103/5"
+	importf = "88100/1"
+
+#########################
 
 	useGPU = True
-	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)+str(lr)
-	gamma = 0.99
+	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
+	gamma = 0.9997
 	gae_lambda = 0.95
-	ppo_eps =  0.2
+	ppo_eps =  0.1
 	ppo_trajectory = 2049
 	stop_test_reward = 10000
 	stop_reward = None
@@ -48,7 +53,8 @@ if __name__ == "__main__":
 	print("Device is ", device)
 
 	net = ppo.PPO(env.observation_space, env.action_space).to(device)
-#	net.load_checkpoint(params.importf)
+	if params.importf != None:
+		net.load_checkpoint(params.importf)
 	print(net)
 
 	agent = ptan.agent.PolicyAgent(lambda x: net(x)[0], apply_softmax=False,
@@ -57,8 +63,8 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-#	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
-	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+	optimizer = optim.Adam(net.parameters(), lr=params.lr)
+#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)
 
@@ -80,7 +86,7 @@ if __name__ == "__main__":
 		logpolicy_t = F.log_softmax(policy_t, dim=1)
 
 		prob_t = F.softmax(policy_t, dim=1)
-		loss_entropy_t = (prob_t * logpolicy_t).sum(dim=1).mean()
+		loss_entropy_t = -(prob_t * logpolicy_t).sum(dim=1).mean()
 
 		logprob_t = logpolicy_t.gather(1, actions_t.unsqueeze(-1)).squeeze(-1)
 		ratio_t = T.exp(logprob_t - old_logprob_t)
@@ -88,7 +94,7 @@ if __name__ == "__main__":
 		clipped_surr_t = adv_t * T.clamp(ratio_t, 1.0 - params.ppo_eps, 1.0 + params.ppo_eps)
 		loss_policy_t = -T.min(surr_obj_t, clipped_surr_t).mean()
 
-		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
+		loss_t = -params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
 		loss_t.backward()
 		optimizer.step()
 
