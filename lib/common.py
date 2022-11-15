@@ -182,7 +182,7 @@ def test(save_name, w, h, dsize, s_modules, d_modules):
 
 		if 100 == n_steps:
 			print(n_games)
-#			return 0
+			return 0
 
 		if len(path)-1 == n_degrad:
 			n_critical += 1

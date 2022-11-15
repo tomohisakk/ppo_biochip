@@ -18,7 +18,7 @@ class Params():
 
 	games = 10000
 	lr = 1e-4
-	entropy_beta = 0.3
+	entropy_beta = 0.1
 	batch_size = 32
 	ppo_epoches = 3
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 		logpolicy_t = F.log_softmax(policy_t, dim=1)
 
 		prob_t = F.softmax(policy_t, dim=1)
-		loss_entropy_t = -(prob_t * logpolicy_t).sum(dim=1).mean()
+		loss_entropy_t = (prob_t * logpolicy_t).sum(dim=1).mean()
 
 		logprob_t = logpolicy_t.gather(1, actions_t.unsqueeze(-1)).squeeze(-1)
 		ratio_t = T.exp(logprob_t - old_logprob_t)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 		clipped_surr_t = adv_t * T.clamp(ratio_t, 1.0 - params.ppo_eps, 1.0 + params.ppo_eps)
 		loss_policy_t = -T.min(surr_obj_t, clipped_surr_t).mean()
 
-		loss_t = -params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
+		loss_t = params.entropy_beta * loss_entropy_t + loss_policy_t + loss_value_t
 		loss_t.backward()
 		optimizer.step()
 

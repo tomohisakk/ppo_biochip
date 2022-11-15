@@ -58,7 +58,7 @@ if __name__ == "__main__":
 	DSIZE = 1
 	S_MODULES = 0
 	D_MODULES = 3
-	N_EPOCH = 27
+	N_EPOCH = 42
 
 	############################
 	device = T.device('cuda:0')
