@@ -16,9 +16,9 @@ warnings.filterwarnings("ignore")
 class Params():
 ###########################
 
-	games = 10000
-	lr = 1e-4
-	entropy_beta = 0.1
+	games = 100000
+	lr = 0.001
+	entropy_beta = 0.5
 	batch_size = 32
 	ppo_epoches = 3
 
@@ -35,7 +35,7 @@ class Params():
 	env_name = str(w)+str(h)+str(dsize)+str(s_modules)+str(d_modules)
 	gamma = 0.9997
 	gae_lambda = 0.95
-	ppo_eps =  0.1
+	ppo_eps =  0.2
 	ppo_trajectory = 2049
 	stop_test_reward = 10000
 	stop_reward = None
@@ -63,8 +63,8 @@ if __name__ == "__main__":
 
 	exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-	optimizer = optim.Adam(net.parameters(), lr=params.lr)
-#	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
+#	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
+	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
 	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)
 

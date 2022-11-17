@@ -7,7 +7,7 @@ import collections
 from sub_envs.dynamic import MEDAEnv
 from sub_envs.map import MakeMap
 from sub_envs.map import Symbols
-from lib import common, ppo
+from lib import commont, ppo
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -58,12 +58,12 @@ if __name__ == "__main__":
 	DSIZE = 1
 	S_MODULES = 0
 	D_MODULES = 3
-	N_EPOCH = 42
+	N_EPOCH = 55
 
 	############################
 	device = T.device('cuda:0')
 	ENV_NAME = str(W)+str(H)+str(DSIZE)+str(S_MODULES)+str(D_MODULES) + "/" + str(N_EPOCH)
 
-	test_result = common.test(ENV_NAME, W, H, DSIZE, S_MODULES, D_MODULES)
+	test_result = commont.test(ENV_NAME, W, H, DSIZE, S_MODULES, D_MODULES)
 
 	print(test_result)

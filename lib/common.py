@@ -30,14 +30,16 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 	total_rewards = []
 	total_n_steps_ep = []
 
+	good_results = []
+
 	@engine.on(ptan_ignite.EpisodeEvents.EPISODE_COMPLETED)
 	def episode_completed(trainer: Engine):
 		total_rewards.append(trainer.state.episode_reward)
 		total_n_steps_ep.append(trainer.state.episode_steps)
 
-		if trainer.state.episode % 1000 == 0:
-			mean_reward = np.mean(total_rewards[-params.games:])
-			mean_n_steps = np.mean(total_n_steps_ep[-params.games:])
+		if trainer.state.episode % 10000 == 0:
+			mean_reward = np.mean(total_rewards[-10000:])
+			mean_n_steps = np.mean(total_n_steps_ep[-10000:])
 			passed = trainer.state.metrics.get('time_passed', 0)
 			print("%d/%d: reward=%.2f, steps=%d, elapsed=%s" % (
 				trainer.state.episode/params.games, trainer.state.episode, 
@@ -49,15 +51,23 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 			net.save_checkpoint(save_name)
 			tmp = test(save_name, params.w, params.h, params.dsize, params.s_modules, params.d_modules)
 			if tmp != 0:
+				good_results.append(trainer.state.episode)
+				good_results.append(tmp)
+
+			if trainer.state.episode/params.games == 50:
 				engine.terminate()
+				print(good_results)
 				print("=== Learning end ===")
 
 			if trainer.state.episode%(10*params.games) == 0:
 				scheduler.step()
+				print()
 				print("LR: ", optimizer.param_groups[0]['lr'])
+				print()
+				print(good_results)
+				print()
 
-	now = datetime.now().isoformat(timespec='minutes')
-	logdir = f"runs/{now}-{params.env_name}"
+	logdir = f"runs/{params.env_name}"
 	tb = tb_logger.TensorboardLogger(log_dir=logdir)
 	run_avg = RunningAverage(output_transform=lambda v: v['loss'])
 	run_avg.attach(engine, "avg_loss")

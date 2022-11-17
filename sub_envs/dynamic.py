@@ -80,7 +80,7 @@ class MEDAEnv(gym.Env):
 		elif dist < _dist:
 			reward = -0.1
 		else:
-			reward = -0.2
+			reward = -0.3
 
 
 #		print(Actions(action))

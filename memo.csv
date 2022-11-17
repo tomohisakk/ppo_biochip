@@ -5,9 +5,9 @@
 0.0
 ###########################
 
-	games = 1000
-	lr = 1e-4
-	entropy_beta = 0.3
+	games = 5000
+	lr = 0.001
+	entropy_beta = 0.5
 	batch_size = 32
 	ppo_epoches = 3
 
@@ -20,17 +20,17 @@
 
 #########################
 
-1/1000: reward=-2.24, steps=19, elapsed=0:00:12
 ... saveing checkpoint ...
 Test result is  1.0
+[5000, 1.0]
 === Learning end ===
 
 0.3
 ###########################
 
-	games = 10000
-	lr = 1e-4
-	entropy_beta = 0.1
+	games = 100000
+	lr = 0.001
+	entropy_beta = 0.5
 	batch_size = 32
 	ppo_epoches = 3
 
