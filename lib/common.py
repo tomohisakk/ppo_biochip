@@ -54,15 +54,15 @@ def setup_ignite(engine: Engine, params: SimpleNamespace, exp_source, run_name: 
 				good_results.append(trainer.state.episode)
 				good_results.append(tmp)
 
-			if trainer.state.episode/params.games == 50:
+			if trainer.state.episode/params.games == params.nepoches:
 				engine.terminate()
 				print(good_results)
 				print("=== Learning end ===")
 
 			if trainer.state.episode%(10*params.games) == 0:
-				scheduler.step()
-				print()
-				print("LR: ", optimizer.param_groups[0]['lr'])
+#				scheduler.step()
+#				print()
+#				print("LR: ", optimizer.param_groups[0]['lr'])
 				print()
 				print(good_results)
 				print()

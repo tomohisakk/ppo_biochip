@@ -17,6 +17,7 @@ class Params():
 ###########################
 
 	games = 100000
+	nepoches = 20
 	lr = 0.001
 	entropy_beta = 0.5
 	batch_size = 32
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 #	optimizer = optim.Adam(net.parameters(), lr=params.lr, eps=1e-3)
 	optimizer = optim.SGD(net.parameters(), lr=params.lr, momentum=0.9)
 
-	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)
+	scheduler = T.optim.lr_scheduler.ExponentialLR(optimizer, gamma=1)
 
 	if not os.path.exists("saves"):
 		os.makedirs("saves")

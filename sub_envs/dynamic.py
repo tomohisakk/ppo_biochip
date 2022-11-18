@@ -23,7 +23,7 @@ class MEDAEnv(gym.Env):
 		self.dsize = dsize
 		self.actions = Actions
 		self.action_space = len(self.actions)
-		self.observation_space = (3, w, h)
+		self.observation_space = (w, h, 3)
 		self.n_steps = 0
 		self.max_step = 100
 
@@ -179,15 +179,15 @@ class MEDAEnv(gym.Env):
 					break
 
 	def _get_obs(self):
-		obs = np.zeros(shape = (3, self.w, self.h))
+		obs = np.zeros(shape = (self.w, self.h,3))
 		for i in range(self.w):
 			for j in range(self.h):
 				if self.map[j][i] == self.map_symbols.State:
-					obs[0][i][j] = 1
+					obs[i][j][0] = 1
 				elif self.map[j][i] == self.map_symbols.Goal:
-					obs[1][i][j] = 1
+					obs[i][j][1] = 1
 				elif self.map[j][i] == self.map_symbols.Static_module:
-					obs[2][i][j] = 1
+					obs[i][j][2] = 1
 #		print(obs)
 		return obs
 

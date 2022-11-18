@@ -6,6 +6,7 @@
 ###########################
 
 	games = 5000
+	nepoches = 1
 	lr = 0.001
 	entropy_beta = 0.5
 	batch_size = 32
@@ -29,6 +30,7 @@ Test result is  1.0
 ###########################
 
 	games = 100000
+	nepoches = 20
 	lr = 0.001
 	entropy_beta = 0.5
 	batch_size = 32
@@ -42,3 +44,5 @@ Test result is  1.0
 	importf = "88100/1"
 
 #########################
+
+
